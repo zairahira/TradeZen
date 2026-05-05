@@ -1,65 +1,93 @@
-import Image from "next/image";
+import { getDashboardStats } from "@/lib/queries";
+import KpiStrip from "@/components/KpiStrip";
+import EquityCurve from "@/components/charts/EquityCurve";
+import WinRateByEmotion from "@/components/charts/WinRateByEmotion";
+import WinRateBySetup from "@/components/charts/WinRateBySetup";
+import WinRateByTimeOfDay from "@/components/charts/WinRateByTimeOfDay";
+import RDistribution from "@/components/charts/RDistribution";
+import Link from "next/link";
 
-export default function Home() {
+interface SearchParams {
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const sp = await searchParams;
+  const stats = await getDashboardStats({
+    dateFrom: sp.dateFrom,
+    dateTo: sp.dateTo,
+  });
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold text-white">Dashboard</h1>
+        <Link
+          href="/trades/new"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+        >
+          + Add Trade
+        </Link>
+      </div>
+
+      <KpiStrip
+        totalPnl={stats.totalPnl}
+        totalTrades={stats.totalTrades}
+        winRate={stats.winRate}
+        profitFactor={stats.profitFactor}
+        avgR={stats.avgR}
+        bestDay={stats.bestDay}
+        worstDay={stats.worstDay}
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ChartCard title="Equity Curve">
+          <EquityCurve data={stats.equityCurve} />
+        </ChartCard>
+
+        <ChartCard title="Win Rate by Emotion" subtitle="The headline view">
+          <WinRateByEmotion data={stats.byEmotion} />
+        </ChartCard>
+
+        <ChartCard title="Win Rate by Setup">
+          <WinRateBySetup data={stats.bySetup} />
+        </ChartCard>
+
+        <ChartCard title="Win Rate by Time of Day">
+          <WinRateByTimeOfDay data={stats.byTimeOfDay} />
+        </ChartCard>
+
+        <ChartCard title="R Multiple Distribution" className="lg:col-span-2">
+          <RDistribution data={stats.rDistribution} />
+        </ChartCard>
+      </div>
+    </div>
+  );
+}
+
+function ChartCard({
+  title,
+  subtitle,
+  children,
+  className = "",
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`bg-[#111] border border-[#1a1a1a] rounded-lg p-5 ${className}`}>
+      <div className="mb-4">
+        <p className="text-sm font-medium text-white">{title}</p>
+        {subtitle && <p className="text-xs text-[#555] mt-0.5">{subtitle}</p>}
+      </div>
+      {children}
     </div>
   );
 }
