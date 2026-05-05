@@ -25,6 +25,7 @@ export const trades = sqliteTable("trades", {
   takeProfit: real("take_profit"),
   fees: real("fees").notNull().default(0),
   setup: text("setup"),
+  modelId: integer("model_id").references(() => tradingModels.id),
   followedPlan: integer("followed_plan", { mode: "boolean" }).notNull().default(false),
   preEmotion: text("pre_emotion", {
     enum: ["calm", "confident", "anxious", "fomo", "revenge", "greedy", "fearful", "bored", "tilted"],
@@ -34,6 +35,11 @@ export const trades = sqliteTable("trades", {
   notes: text("notes"),
   screenshotPath: text("screenshot_path"),
   createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+});
+
+export const tradingModels = sqliteTable("trading_models", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull().unique(),
 });
 
 export const mistakeTags = sqliteTable("mistake_tags", {
@@ -55,3 +61,5 @@ export type NewInstrument = typeof instruments.$inferInsert;
 export type Trade = typeof trades.$inferSelect;
 export type NewTrade = typeof trades.$inferInsert;
 export type MistakeTag = typeof mistakeTags.$inferSelect;
+export type TradingModel = typeof tradingModels.$inferSelect;
+export type NewTradingModel = typeof tradingModels.$inferInsert;

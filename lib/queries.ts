@@ -1,6 +1,6 @@
 import { db } from "./db/client";
-import { trades, instruments } from "./db/schema";
-import { eq, and, gte, lte, sql } from "drizzle-orm";
+import { trades, instruments, tradingModels } from "./db/schema";
+import { eq } from "drizzle-orm";
 import { calcTradePnl } from "./trade-math";
 import { TIME_OF_DAY_BUCKETS } from "./constants";
 
@@ -22,6 +22,8 @@ export interface TradeWithComputed {
   takeProfit: number | null;
   fees: number;
   setup: string | null;
+  modelId: number | null;
+  modelName: string | null;
   followedPlan: boolean;
   preEmotion: "calm" | "confident" | "anxious" | "fomo" | "revenge" | "greedy" | "fearful" | "bored" | "tilted";
   confidence: number;
@@ -42,6 +44,7 @@ export interface FilterParams {
   setups?: string[];
   symbols?: string[];
   outcomes?: string[];
+  models?: string[];
   followedPlan?: boolean;
   dateFrom?: string;
   dateTo?: string;
@@ -54,11 +57,13 @@ export async function getTradesWithComputed(
     .select({
       trade: trades,
       instrument: instruments,
+      model: tradingModels,
     })
     .from(trades)
-    .innerJoin(instruments, eq(trades.instrumentId, instruments.id));
+    .innerJoin(instruments, eq(trades.instrumentId, instruments.id))
+    .leftJoin(tradingModels, eq(trades.modelId, tradingModels.id));
 
-  let result = rows.map(({ trade, instrument }) => {
+  let result = rows.map(({ trade, instrument, model }) => {
     const pnl = calcTradePnl({
       entry: trade.entryPrice,
       exit: trade.exitPrice,
@@ -76,6 +81,8 @@ export async function getTradesWithComputed(
       instrumentName: instrument.name,
       valuePerPoint: instrument.valuePerPoint,
       currency: instrument.currency,
+      modelId: trade.modelId ?? null,
+      modelName: model?.name ?? null,
       ...pnl,
     } as TradeWithComputed;
   });
@@ -92,6 +99,9 @@ export async function getTradesWithComputed(
     }
     if (filters.outcomes?.length) {
       result = result.filter((t) => filters.outcomes!.includes(t.outcome));
+    }
+    if (filters.models?.length) {
+      result = result.filter((t) => t.modelName !== null && filters.models!.includes(t.modelName));
     }
     if (filters.followedPlan !== undefined) {
       result = result.filter((t) => t.followedPlan === filters.followedPlan);
@@ -126,6 +136,7 @@ export interface DashboardStats {
   equityCurve: { date: string; cumPnl: number }[];
   byEmotion: { emotion: string; winRate: number; avgPnl: number; count: number }[];
   bySetup: { setup: string; winRate: number; avgPnl: number; count: number }[];
+  byModel: { model: string; winRate: number; avgPnl: number; count: number }[];
   byTimeOfDay: { bucket: string; winRate: number; avgPnl: number; count: number }[];
   rDistribution: { bucket: string; count: number }[];
 }
@@ -198,6 +209,20 @@ export async function getDashboardStats(
     count: ts.length,
   }));
 
+  // By model
+  const modelMap: Record<string, TradeWithComputed[]> = {};
+  for (const t of allTrades) {
+    if (!t.modelName) continue;
+    if (!modelMap[t.modelName]) modelMap[t.modelName] = [];
+    modelMap[t.modelName].push(t);
+  }
+  const byModel = Object.entries(modelMap).map(([model, ts]) => ({
+    model,
+    winRate: ts.filter((t) => t.outcome === "win").length / ts.length,
+    avgPnl: ts.reduce((s, t) => s + t.netPnl, 0) / ts.length,
+    count: ts.length,
+  }));
+
   // By time of day
   const todMap: Record<string, TradeWithComputed[]> = {};
   for (const t of allTrades) {
@@ -241,6 +266,7 @@ export async function getDashboardStats(
     equityCurve,
     byEmotion,
     bySetup,
+    byModel,
     byTimeOfDay,
     rDistribution,
   };
@@ -248,6 +274,10 @@ export async function getDashboardStats(
 
 export async function getInstruments() {
   return db.select().from(instruments).all();
+}
+
+export async function getTradingModels() {
+  return db.select().from(tradingModels).orderBy(tradingModels.name).all();
 }
 
 export async function getMistakeTags() {

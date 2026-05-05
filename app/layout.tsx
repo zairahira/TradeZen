@@ -43,6 +43,9 @@ export default function RootLayout({
           >
             + Add Trade
           </Link>
+          <Link href="/models" className="text-[#aaa] hover:text-white transition-colors">
+            Models
+          </Link>
           <Link href="/instruments" className="text-[#aaa] hover:text-white transition-colors">
             Instruments
           </Link>

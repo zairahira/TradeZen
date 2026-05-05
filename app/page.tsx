@@ -3,6 +3,7 @@ import KpiStrip from "@/components/KpiStrip";
 import EquityCurve from "@/components/charts/EquityCurve";
 import WinRateByEmotion from "@/components/charts/WinRateByEmotion";
 import WinRateBySetup from "@/components/charts/WinRateBySetup";
+import WinRateByModel from "@/components/charts/WinRateByModel";
 import WinRateByTimeOfDay from "@/components/charts/WinRateByTimeOfDay";
 import RDistribution from "@/components/charts/RDistribution";
 import Link from "next/link";
@@ -56,6 +57,10 @@ export default async function DashboardPage({
 
         <ChartCard title="Win Rate by Setup">
           <WinRateBySetup data={stats.bySetup} />
+        </ChartCard>
+
+        <ChartCard title="Win Rate by Model" subtitle="Performance per ICT/trading model">
+          <WinRateByModel data={stats.byModel} />
         </ChartCard>
 
         <ChartCard title="Win Rate by Time of Day">

@@ -1,4 +1,4 @@
-import { getTradeById, getInstruments } from "@/lib/queries";
+import { getTradeById, getInstruments, getTradingModels } from "@/lib/queries";
 import TradeForm from "@/components/TradeForm";
 import DeleteTradeButton from "./DeleteTradeButton";
 import { notFound } from "next/navigation";
@@ -13,9 +13,10 @@ export default async function TradeDetailPage({
   const tradeId = parseInt(id, 10);
   if (isNaN(tradeId)) notFound();
 
-  const [trade, instruments] = await Promise.all([
+  const [trade, instruments, models] = await Promise.all([
     getTradeById(tradeId),
     getInstruments(),
+    getTradingModels(),
   ]);
 
   if (!trade) notFound();
@@ -41,7 +42,7 @@ export default async function TradeDetailPage({
         </div>
       )}
 
-      <TradeForm instruments={instruments} trade={trade} />
+      <TradeForm instruments={instruments} models={models} trade={trade} />
     </div>
   );
 }

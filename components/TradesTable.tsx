@@ -40,6 +40,7 @@ export default function TradesTable({ trades }: Props) {
             <th className="text-right py-2 pr-4">R</th>
             <th className="text-left py-2 pr-4">Emotion</th>
             <th className="text-left py-2 pr-4">Setup</th>
+            <th className="text-left py-2 pr-4">Model</th>
             <th className="text-left py-2">Result</th>
           </tr>
         </thead>
@@ -78,6 +79,7 @@ export default function TradesTable({ trades }: Props) {
                 {EMOTION_LABELS[t.preEmotion as keyof typeof EMOTION_LABELS] ?? t.preEmotion}
               </td>
               <td className="py-2.5 pr-4 text-[#666] text-xs">{t.setup ?? "-"}</td>
+              <td className="py-2.5 pr-4 text-[#666] text-xs">{t.modelName ?? "-"}</td>
               <td className="py-2.5">
                 <span
                   className={`text-xs px-1.5 py-0.5 rounded font-medium ${

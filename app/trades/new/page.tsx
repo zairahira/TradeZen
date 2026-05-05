@@ -1,8 +1,11 @@
-import { getInstruments } from "@/lib/queries";
+import { getInstruments, getTradingModels } from "@/lib/queries";
 import TradeForm from "@/components/TradeForm";
 
 export default async function NewTradePage() {
-  const instruments = await getInstruments();
+  const [instruments, models] = await Promise.all([
+    getInstruments(),
+    getTradingModels(),
+  ]);
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -15,7 +18,7 @@ export default async function NewTradePage() {
           </a>
         </p>
       ) : (
-        <TradeForm instruments={instruments} />
+        <TradeForm instruments={instruments} models={models} />
       )}
     </div>
   );

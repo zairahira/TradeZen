@@ -1,8 +1,8 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
-import { instruments, mistakeTags } from "./schema";
-import { DEFAULT_INSTRUMENTS, MISTAKE_TAGS } from "../constants";
+import { instruments, mistakeTags, tradingModels } from "./schema";
+import { DEFAULT_INSTRUMENTS, MISTAKE_TAGS, DEFAULT_TRADING_MODELS } from "../constants";
 import path from "path";
 
 const DB_PATH = path.join(process.cwd(), "data", "journal.db");
@@ -26,6 +26,14 @@ for (const inst of DEFAULT_INSTRUMENTS) {
 for (const tag of MISTAKE_TAGS) {
   db.insert(mistakeTags)
     .values({ name: tag })
+    .onConflictDoNothing()
+    .run();
+}
+
+// Seed trading models
+for (const name of DEFAULT_TRADING_MODELS) {
+  db.insert(tradingModels)
+    .values({ name })
     .onConflictDoNothing()
     .run();
 }

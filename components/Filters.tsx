@@ -2,13 +2,14 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { EMOTIONS, EMOTION_LABELS } from "@/lib/constants";
-import type { Instrument } from "@/lib/db/schema";
+import type { Instrument, TradingModel } from "@/lib/db/schema";
 
 interface Props {
   instruments: Instrument[];
+  models: TradingModel[];
 }
 
-export default function Filters({ instruments }: Props) {
+export default function Filters({ instruments, models }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -35,6 +36,7 @@ export default function Filters({ instruments }: Props) {
   const activeEmotions = sp.getAll("emotion");
   const activeOutcomes = sp.getAll("outcome");
   const activeSymbols = sp.getAll("symbol");
+  const activeModels = sp.getAll("model");
   const activePlan = sp.get("followedPlan");
 
   return (
@@ -114,6 +116,27 @@ export default function Filters({ instruments }: Props) {
           ))}
         </div>
       </div>
+
+      {models.length > 0 && (
+        <div>
+          <p className="text-[10px] text-[#555] uppercase tracking-wider mb-2">Model</p>
+          <div className="flex flex-col gap-1">
+            {models.map((m) => (
+              <button
+                key={m.id}
+                onClick={() => toggle("model", m.name)}
+                className={`text-left text-xs px-2 py-1 rounded transition-colors ${
+                  activeModels.includes(m.name)
+                    ? "bg-blue-900/40 text-blue-300 border border-blue-700"
+                    : "text-[#666] hover:text-[#aaa]"
+                }`}
+              >
+                {m.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div>
         <p className="text-[10px] text-[#555] uppercase tracking-wider mb-2">Plan</p>

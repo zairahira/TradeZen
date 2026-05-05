@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { createTrade, updateTrade } from "@/app/actions/trades";
 import { calcTradePnl } from "@/lib/trade-math";
 import { EMOTIONS, EMOTION_LABELS, SETUP_SUGGESTIONS } from "@/lib/constants";
-import type { Instrument, Trade } from "@/lib/db/schema";
+import type { Instrument, Trade, TradingModel } from "@/lib/db/schema";
 
 interface FormValues {
   instrumentId: string;
@@ -21,6 +21,7 @@ interface FormValues {
   takeProfit: string;
   fees: string;
   setup: string;
+  modelId: string;
   followedPlan: boolean;
   preEmotion: "calm" | "confident" | "anxious" | "fomo" | "revenge" | "greedy" | "fearful" | "bored" | "tilted";
   confidence: string;
@@ -30,6 +31,7 @@ interface FormValues {
 
 interface Props {
   instruments: Instrument[];
+  models: TradingModel[];
   trade?: Trade;
 }
 
@@ -39,7 +41,7 @@ const labelCls = "block text-xs text-[#666] uppercase tracking-wider mb-1";
 const sectionCls = "space-y-4";
 const sectionHeadCls = "text-xs font-semibold text-[#555] uppercase tracking-wider pb-1 border-b border-[#1a1a1a] mb-4";
 
-export default function TradeForm({ instruments, trade }: Props) {
+export default function TradeForm({ instruments, models, trade }: Props) {
   const [isPending, startTransition] = useTransition();
   const [pnlPreview, setPnlPreview] = useState<ReturnType<typeof calcTradePnl> | null>(null);
 
@@ -66,6 +68,7 @@ export default function TradeForm({ instruments, trade }: Props) {
           takeProfit: trade.takeProfit != null ? String(trade.takeProfit) : "",
           fees: String(trade.fees),
           setup: trade.setup ?? "",
+          modelId: trade.modelId != null ? String(trade.modelId) : "",
           followedPlan: trade.followedPlan,
           preEmotion: trade.preEmotion,
           confidence: String(trade.confidence),
@@ -84,6 +87,7 @@ export default function TradeForm({ instruments, trade }: Props) {
           stopLoss: "",
           takeProfit: "",
           setup: "",
+          modelId: "",
           reflection: "",
           notes: "",
           instrumentId: "",
@@ -285,6 +289,18 @@ export default function TradeForm({ instruments, trade }: Props) {
             <datalist id="setups">
               {SETUP_SUGGESTIONS.map((s) => <option key={s} value={s} />)}
             </datalist>
+          </div>
+
+          <div>
+            <label className={labelCls}>Trading Model</label>
+            <select {...register("modelId")} className={inputCls}>
+              <option value="">None</option>
+              {models.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="flex items-center gap-3 pt-5">

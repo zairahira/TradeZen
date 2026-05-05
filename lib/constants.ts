@@ -59,6 +59,19 @@ export const DEFAULT_INSTRUMENTS = [
   { symbol: "US500", name: "S&P 500", valuePerPoint: 1.0, currency: "USD" },
 ];
 
+export const DEFAULT_TRADING_MODELS = [
+  "ICT 2022 Model",
+  "ICT 2023 Model",
+  "Inversion FVG",
+  "Silver Bullet",
+  "Turtle Soup",
+  "London Open",
+  "NY AM Session",
+  "Unicorn Model",
+  "OTE (Optimal Trade Entry)",
+  "Breaker Block",
+];
+
 export const TIME_OF_DAY_BUCKETS = [
   { label: "Pre-market", start: "00:00", end: "09:29" },
   { label: "Morning", start: "09:30", end: "11:59" },

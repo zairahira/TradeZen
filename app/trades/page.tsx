@@ -1,4 +1,4 @@
-import { getTradesWithComputed, getInstruments } from "@/lib/queries";
+import { getTradesWithComputed, getInstruments, getTradingModels } from "@/lib/queries";
 import TradesTable from "@/components/TradesTable";
 import Filters from "@/components/Filters";
 import { Suspense } from "react";
@@ -8,6 +8,7 @@ interface SearchParams {
   emotion?: string | string[];
   outcome?: string | string[];
   symbol?: string | string[];
+  model?: string | string[];
   followedPlan?: string;
   dateFrom?: string;
   dateTo?: string;
@@ -24,16 +25,18 @@ export default async function TradesPage({
   searchParams: Promise<SearchParams>;
 }) {
   const sp = await searchParams;
-  const [trades, instruments] = await Promise.all([
+  const [trades, instruments, models] = await Promise.all([
     getTradesWithComputed({
       emotions: toArray(sp.emotion),
       outcomes: toArray(sp.outcome),
       symbols: toArray(sp.symbol),
+      models: toArray(sp.model),
       followedPlan: sp.followedPlan === "true" ? true : sp.followedPlan === "false" ? false : undefined,
       dateFrom: sp.dateFrom,
       dateTo: sp.dateTo,
     }),
     getInstruments(),
+    getTradingModels(),
   ]);
 
   return (
@@ -53,7 +56,7 @@ export default async function TradesPage({
 
       <div className="flex gap-6">
         <Suspense>
-          <Filters instruments={instruments} />
+          <Filters instruments={instruments} models={models} />
         </Suspense>
         <div className="flex-1 min-w-0">
           <TradesTable trades={trades} />
