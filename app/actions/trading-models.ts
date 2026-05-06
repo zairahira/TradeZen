@@ -21,6 +21,22 @@ export async function createTradingModel(formData: FormData) {
   redirect("/models");
 }
 
+export async function createTradingModelInline(formData: FormData) {
+  const raw = Object.fromEntries(formData.entries());
+  const parsed = modelSchema.safeParse(raw);
+  if (!parsed.success) return { error: parsed.error.flatten() };
+
+  const [created] = await db
+    .insert(tradingModels)
+    .values({ name: parsed.data.name })
+    .onConflictDoNothing()
+    .returning();
+
+  revalidatePath("/models");
+  revalidatePath("/trades/new");
+  return { model: created ?? null };
+}
+
 export async function deleteTradingModel(id: number) {
   await db.update(trades).set({ modelId: null }).where(eq(trades.modelId, id));
   await db.delete(tradingModels).where(eq(tradingModels.id, id));

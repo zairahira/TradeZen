@@ -18,9 +18,10 @@ const instruments = [
 ];
 
 const modelIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, null, null]; // null = no model tagged
-const emotions = ["calm", "confident", "anxious", "fomo", "revenge", "greedy", "fearful", "bored", "tilted"] as const;
+type Emotion = "calm" | "confident" | "anxious" | "fomo" | "revenge" | "greedy" | "fearful" | "bored" | "tilted";
+const emotions: Emotion[] = ["calm", "confident", "anxious", "fomo", "revenge", "greedy", "fearful", "bored", "tilted"];
 const setups = ["Breakout", "Pullback", "Trend continuation", "Reversal", "FVG fill", "OB mitigation", "Liquidity sweep", "Gap fill", null];
-const directions = ["long", "short"] as const;
+const directions: ("long" | "short")[] = ["long", "short"];
 const killZoneTimes = ["08:30", "09:00", "09:30", "10:00", "10:30", "14:00", "14:30", "15:00", "16:00"];
 
 function pick<T>(arr: T[]): T {

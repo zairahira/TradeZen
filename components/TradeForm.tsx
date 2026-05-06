@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { createTrade, updateTrade } from "@/app/actions/trades";
+import { createInstrumentInline } from "@/app/actions/instruments";
+import { createTradingModelInline } from "@/app/actions/trading-models";
 import { calcTradePnl } from "@/lib/trade-math";
 import { EMOTIONS, EMOTION_LABELS, SETUP_SUGGESTIONS } from "@/lib/constants";
 import type { Instrument, Trade, TradingModel } from "@/lib/db/schema";
@@ -44,7 +46,49 @@ const sectionHeadCls = "text-xs font-semibold text-[#555] uppercase tracking-wid
 export default function TradeForm({ instruments, models, trade }: Props) {
   const [isPending, startTransition] = useTransition();
   const [pnlPreview, setPnlPreview] = useState<ReturnType<typeof calcTradePnl> | null>(null);
+  const [localInstruments, setLocalInstruments] = useState(instruments);
+  const [showAddInstrument, setShowAddInstrument] = useState(false);
+  const [addInstPending, setAddInstPending] = useState(false);
+  const [newInst, setNewInst] = useState({ symbol: "", name: "", valuePerPoint: "", currency: "USD" });
+  const [localModels, setLocalModels] = useState(models);
+  const [showAddModel, setShowAddModel] = useState(false);
+  const [addModelPending, setAddModelPending] = useState(false);
+  const [newModelName, setNewModelName] = useState("");
+  const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
+  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(
+    trade?.screenshotPath ? `/api/uploads/${trade.screenshotPath}` : null
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  function applyFile(file: File) {
+    setScreenshotFile(file);
+    setScreenshotPreview(URL.createObjectURL(file));
+  }
+
+  function clearScreenshot() {
+    setScreenshotFile(null);
+    setScreenshotPreview(trade?.screenshotPath ? `/api/uploads/${trade.screenshotPath}` : null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  useEffect(() => {
+    function onPaste(e: ClipboardEvent) {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith("image/")) {
+          const file = item.getAsFile();
+          if (file) applyFile(file);
+          e.preventDefault();
+          break;
+        }
+      }
+    }
+    document.addEventListener("paste", onPaste);
+    return () => document.removeEventListener("paste", onPaste);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const today = format(new Date(), "yyyy-MM-dd");
 
@@ -52,6 +96,7 @@ export default function TradeForm({ instruments, models, trade }: Props) {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: trade
@@ -104,7 +149,7 @@ export default function TradeForm({ instruments, models, trade }: Props) {
   const stopLoss = useWatch({ control, name: "stopLoss" });
 
   useEffect(() => {
-    const inst = instruments.find((i) => i.id === Number(instId));
+    const inst = localInstruments.find((i) => i.id === Number(instId));
     if (!inst || !entryPrice || !exitPrice || !lotSize) {
       setPnlPreview(null);
       return;
@@ -123,7 +168,7 @@ export default function TradeForm({ instruments, models, trade }: Props) {
     } catch {
       setPnlPreview(null);
     }
-  }, [instId, direction, entryPrice, exitPrice, lotSize, fees, stopLoss, instruments]);
+  }, [instId, direction, entryPrice, exitPrice, lotSize, fees, stopLoss, localInstruments]);
 
   function onSubmit(data: FormValues) {
     const fd = new FormData();
@@ -134,6 +179,8 @@ export default function TradeForm({ instruments, models, trade }: Props) {
     });
     if (data.followedPlan) fd.set("followedPlan", "on");
     else fd.delete("followedPlan");
+
+    if (screenshotFile) fd.append("screenshot", screenshotFile);
 
     startTransition(async () => {
       const result = trade
@@ -168,15 +215,107 @@ export default function TradeForm({ instruments, models, trade }: Props) {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div className="col-span-2 sm:col-span-1">
             <label className={labelCls}>Instrument</label>
-            <select {...register("instrumentId", { required: "Select an instrument" })} className={inputCls}>
-              <option value="">Select...</option>
-              {instruments.map((i) => (
-                <option key={i.id} value={i.id}>
-                  {i.symbol} - {i.name}
-                </option>
-              ))}
-            </select>
+            <Controller
+              control={control}
+              name="instrumentId"
+              rules={{ required: "Select an instrument" }}
+              render={({ field }) => (
+                <select
+                  value={field.value}
+                  onChange={(e) => {
+                    if (e.target.value === "__add_new__") {
+                      setShowAddInstrument(true);
+                      field.onChange("");
+                    } else {
+                      setShowAddInstrument(false);
+                      field.onChange(e.target.value);
+                    }
+                  }}
+                  className={inputCls}
+                >
+                  <option value="">Select...</option>
+                  {localInstruments.map((i) => (
+                    <option key={i.id} value={i.id}>
+                      {i.symbol} - {i.name}
+                    </option>
+                  ))}
+                  <option value="__add_new__">+ Add new instrument...</option>
+                </select>
+              )}
+            />
             {errors.instrumentId && <p className="text-xs text-red-400 mt-1">{errors.instrumentId.message}</p>}
+
+            {showAddInstrument && (
+              <div className="mt-2 p-3 border border-[#333] rounded bg-[#0d0d0d] space-y-2">
+                <p className="text-xs text-[#666] uppercase tracking-wider font-semibold">New Instrument</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    placeholder="Symbol (e.g. US100)"
+                    value={newInst.symbol}
+                    onChange={(e) => setNewInst((p) => ({ ...p, symbol: e.target.value.toUpperCase() }))}
+                    className={inputCls}
+                  />
+                  <input
+                    placeholder="Name (e.g. Nasdaq 100)"
+                    value={newInst.name}
+                    onChange={(e) => setNewInst((p) => ({ ...p, name: e.target.value }))}
+                    className={inputCls}
+                  />
+                  <input
+                    placeholder="Value/Point (e.g. 1)"
+                    type="number"
+                    step="any"
+                    value={newInst.valuePerPoint}
+                    onChange={(e) => setNewInst((p) => ({ ...p, valuePerPoint: e.target.value }))}
+                    className={inputCls}
+                  />
+                  <input
+                    placeholder="Currency (e.g. USD)"
+                    value={newInst.currency}
+                    onChange={(e) => setNewInst((p) => ({ ...p, currency: e.target.value.toUpperCase() }))}
+                    maxLength={3}
+                    className={inputCls}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={addInstPending}
+                    onClick={async () => {
+                      if (!newInst.symbol || !newInst.name || !newInst.valuePerPoint) return;
+                      setAddInstPending(true);
+                      const fd = new FormData();
+                      fd.append("symbol", newInst.symbol);
+                      fd.append("name", newInst.name);
+                      fd.append("valuePerPoint", newInst.valuePerPoint);
+                      fd.append("currency", newInst.currency || "USD");
+                      const result = await createInstrumentInline(fd);
+                      setAddInstPending(false);
+                      if (result && "instrument" in result && result.instrument) {
+                        const created = result.instrument;
+                        setLocalInstruments((prev) => [...prev, created]);
+                        setValue("instrumentId", String(created.id));
+                        setShowAddInstrument(false);
+                        setNewInst({ symbol: "", name: "", valuePerPoint: "", currency: "USD" });
+                      }
+                    }}
+                    className="text-xs bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3 py-1.5 rounded transition-colors"
+                  >
+                    {addInstPending ? "Adding..." : "Add"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddInstrument(false);
+                      setNewInst({ symbol: "", name: "", valuePerPoint: "", currency: "USD" });
+                    }}
+                    className="text-xs text-[#555] hover:text-[#aaa] border border-[#333] hover:border-[#555] px-3 py-1.5 rounded transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
@@ -289,14 +428,79 @@ export default function TradeForm({ instruments, models, trade }: Props) {
 
           <div>
             <label className={labelCls}>Trading Model</label>
-            <select {...register("modelId")} className={inputCls}>
-              <option value="">None</option>
-              {models.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
+            <Controller
+              control={control}
+              name="modelId"
+              render={({ field }) => (
+                <select
+                  value={field.value}
+                  onChange={(e) => {
+                    if (e.target.value === "__add_new__") {
+                      setShowAddModel(true);
+                      field.onChange("");
+                    } else {
+                      setShowAddModel(false);
+                      field.onChange(e.target.value);
+                    }
+                  }}
+                  className={inputCls}
+                >
+                  <option value="">None</option>
+                  {localModels.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                  <option value="__add_new__">+ Add new model...</option>
+                </select>
+              )}
+            />
+
+            {showAddModel && (
+              <div className="mt-2 p-3 border border-[#333] rounded bg-[#0d0d0d] space-y-2">
+                <p className="text-xs text-[#666] uppercase tracking-wider font-semibold">New Model</p>
+                <input
+                  placeholder="Model name (e.g. Silver Bullet)"
+                  value={newModelName}
+                  onChange={(e) => setNewModelName(e.target.value)}
+                  className={inputCls}
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={addModelPending}
+                    onClick={async () => {
+                      if (!newModelName.trim()) return;
+                      setAddModelPending(true);
+                      const fd = new FormData();
+                      fd.append("name", newModelName.trim());
+                      const result = await createTradingModelInline(fd);
+                      setAddModelPending(false);
+                      if (result && "model" in result && result.model) {
+                        const created = result.model;
+                        setLocalModels((prev) => [...prev, created]);
+                        setValue("modelId", String(created.id));
+                        setShowAddModel(false);
+                        setNewModelName("");
+                      }
+                    }}
+                    className="text-xs bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3 py-1.5 rounded transition-colors"
+                  >
+                    {addModelPending ? "Adding..." : "Add"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddModel(false);
+                      setNewModelName("");
+                    }}
+                    className="text-xs text-[#555] hover:text-[#aaa] border border-[#333] hover:border-[#555] px-3 py-1.5 rounded transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-3 pt-5">
@@ -321,14 +525,60 @@ export default function TradeForm({ instruments, models, trade }: Props) {
             <textarea rows={3} {...register("notes")} className={inputCls} placeholder="Context, news, etc." />
           </div>
         </div>
-        <div>
+        <div className="space-y-2">
           <label className={labelCls}>Chart Screenshot</label>
-          <input
-            type="file"
-            name="screenshot"
-            accept="image/*"
-            className="text-sm text-[#888] file:mr-3 file:py-1.5 file:px-3 file:rounded file:border file:border-[#333] file:bg-[#111] file:text-[#aaa] file:text-xs hover:file:border-[#555] cursor-pointer"
-          />
+          <div className="flex flex-wrap items-center gap-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) applyFile(file);
+              }}
+              className="text-sm text-[#888] file:mr-3 file:py-1.5 file:px-3 file:rounded file:border file:border-[#333] file:bg-[#111] file:text-[#aaa] file:text-xs hover:file:border-[#555] cursor-pointer"
+            />
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const items = await navigator.clipboard.read();
+                  for (const item of items) {
+                    const imageType = item.types.find((t) => t.startsWith("image/"));
+                    if (imageType) {
+                      const blob = await item.getType(imageType);
+                      applyFile(new File([blob], "clipboard.png", { type: imageType }));
+                      break;
+                    }
+                  }
+                } catch {
+                  // clipboard API not available or denied — user can still Ctrl+V
+                }
+              }}
+              className="text-xs text-[#666] hover:text-[#aaa] border border-[#333] hover:border-[#555] px-3 py-1.5 rounded transition-colors"
+            >
+              Paste from clipboard
+            </button>
+            <span className="text-[10px] text-[#444]">or Ctrl+V anywhere on this page</span>
+          </div>
+
+          {screenshotPreview && (
+            <div className="relative inline-block mt-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={screenshotPreview}
+                alt="Screenshot preview"
+                className="max-h-48 rounded border border-[#333] object-contain bg-[#111]"
+              />
+              <button
+                type="button"
+                onClick={clearScreenshot}
+                className="absolute top-1 right-1 bg-[#111]/80 hover:bg-red-900/80 text-[#aaa] hover:text-white rounded px-1.5 py-0.5 text-xs transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

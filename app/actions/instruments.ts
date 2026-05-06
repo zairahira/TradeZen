@@ -24,6 +24,22 @@ export async function createInstrument(formData: FormData) {
   redirect("/instruments");
 }
 
+export async function createInstrumentInline(formData: FormData) {
+  const raw = Object.fromEntries(formData.entries());
+  const parsed = instrumentSchema.safeParse(raw);
+  if (!parsed.success) return { error: parsed.error.flatten() };
+
+  const [created] = await db
+    .insert(instruments)
+    .values(parsed.data)
+    .onConflictDoNothing()
+    .returning();
+
+  revalidatePath("/instruments");
+  revalidatePath("/trades/new");
+  return { instrument: created ?? null };
+}
+
 export async function updateInstrument(id: number, formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
   const parsed = instrumentSchema.safeParse(raw);
