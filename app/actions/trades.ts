@@ -78,7 +78,7 @@ export async function createTrade(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/trades");
-  redirect("/trades");
+  return { redirect: "/trades" };
 }
 
 export async function updateTrade(id: number, formData: FormData) {
@@ -134,7 +134,7 @@ export async function updateTrade(id: number, formData: FormData) {
   revalidatePath("/");
   revalidatePath("/trades");
   revalidatePath(`/trades/${id}`);
-  redirect(`/trades/${id}`);
+  return { redirect: `/trades/${id}` };
 }
 
 export async function deleteTrade(id: number) {
@@ -142,4 +142,13 @@ export async function deleteTrade(id: number) {
   revalidatePath("/");
   revalidatePath("/trades");
   redirect("/trades");
+}
+
+export async function bulkDeleteTrades(ids: number[]) {
+  if (ids.length === 0) return;
+  for (const id of ids) {
+    await db.delete(trades).where(eq(trades.id, id));
+  }
+  revalidatePath("/");
+  revalidatePath("/trades");
 }

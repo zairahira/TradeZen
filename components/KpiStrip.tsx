@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 interface KpiStripProps {
   totalPnl: number;
   totalTrades: number;
@@ -14,6 +16,13 @@ function fmt(n: number, digits = 2) {
   return n.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
+const EXPLANATIONS: Record<string, string> = {
+  "Net P&L": "Total profit or loss across all trades after fees. Gross P&L minus commissions and spreads paid.",
+  "Win Rate": "Percentage of trades that closed profitable. 50% means half your trades were winners. Needs to be read alongside Profit Factor — a 40% win rate can still be profitable with large winners.",
+  "Profit Factor": "Total gross profit divided by total gross loss. Above 1.0 means you're net profitable. 2.0 means you made $2 for every $1 lost. Below 1.0 means you're losing money overall.",
+  "Avg R": "Average R-multiple across trades where a stop loss was set. R measures how much you made or lost relative to your risk on each trade. +1R means you made exactly what you risked. Aim for positive Avg R consistently.",
+};
+
 export default function KpiStrip({
   totalPnl,
   totalTrades,
@@ -23,6 +32,8 @@ export default function KpiStrip({
   bestDay,
   worstDay,
 }: KpiStripProps) {
+  const [open, setOpen] = useState<string | null>(null);
+
   const kpis = [
     {
       label: "Net P&L",
@@ -59,12 +70,44 @@ export default function KpiStrip({
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-      {kpis.map((k) => (
-        <div key={k.label} className="bg-[#111] border border-[#222] rounded-lg p-4">
-          <p className="text-[11px] text-[#666] uppercase tracking-wider mb-1">{k.label}</p>
-          <p className={`text-xl font-semibold ${k.color}`}>{k.value}</p>
-        </div>
-      ))}
+      {kpis.map((k) => {
+        const hasInfo = k.label in EXPLANATIONS;
+        const isOpen = open === k.label;
+
+        return (
+          <div key={k.label} className="relative bg-[#111] border border-[#222] rounded-lg p-4">
+            <div className="flex items-center gap-1 mb-1">
+              <p className="text-[11px] text-[#666] uppercase tracking-wider">{k.label}</p>
+              {hasInfo && (
+                <button
+                  onClick={() => setOpen(isOpen ? null : k.label)}
+                  className="text-[#444] hover:text-[#888] transition-colors leading-none"
+                  aria-label={`About ${k.label}`}
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                    <circle cx="6" cy="6" r="5.5" stroke="currentColor" strokeWidth="1" fill="none" />
+                    <text x="6" y="9" textAnchor="middle" fontSize="7.5" fontWeight="600">?</text>
+                  </svg>
+                </button>
+              )}
+            </div>
+            <p className={`text-xl font-semibold ${k.color}`}>{k.value}</p>
+
+            {isOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setOpen(null)}
+                />
+                <div className="absolute z-20 top-full left-0 mt-2 w-64 bg-[#1a1a1a] border border-[#333] rounded-lg p-3 shadow-xl text-xs text-[#bbb] leading-relaxed">
+                  <p className="font-medium text-white mb-1">{k.label}</p>
+                  {EXPLANATIONS[k.label]}
+                </div>
+              </>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { createTrade, updateTrade } from "@/app/actions/trades";
 import { calcTradePnl } from "@/lib/trade-math";
@@ -24,7 +25,6 @@ interface FormValues {
   modelId: string;
   followedPlan: boolean;
   preEmotion: "calm" | "confident" | "anxious" | "fomo" | "revenge" | "greedy" | "fearful" | "bored" | "tilted";
-  confidence: string;
   reflection: string;
   notes: string;
 }
@@ -44,6 +44,7 @@ const sectionHeadCls = "text-xs font-semibold text-[#555] uppercase tracking-wid
 export default function TradeForm({ instruments, models, trade }: Props) {
   const [isPending, startTransition] = useTransition();
   const [pnlPreview, setPnlPreview] = useState<ReturnType<typeof calcTradePnl> | null>(null);
+  const router = useRouter();
 
   const today = format(new Date(), "yyyy-MM-dd");
 
@@ -51,7 +52,6 @@ export default function TradeForm({ instruments, models, trade }: Props) {
     register,
     handleSubmit,
     control,
-    watch,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: trade
@@ -71,7 +71,6 @@ export default function TradeForm({ instruments, models, trade }: Props) {
           modelId: trade.modelId != null ? String(trade.modelId) : "",
           followedPlan: trade.followedPlan,
           preEmotion: trade.preEmotion,
-          confidence: String(trade.confidence),
           reflection: trade.reflection ?? "",
           notes: trade.notes ?? "",
         }
@@ -79,7 +78,6 @@ export default function TradeForm({ instruments, models, trade }: Props) {
           tradeDate: today,
           direction: "long",
           fees: "0",
-          confidence: "3",
           followedPlan: false,
           preEmotion: "calm",
           entryTime: "",
@@ -97,10 +95,15 @@ export default function TradeForm({ instruments, models, trade }: Props) {
         },
   });
 
-  const watchedFields = watch(["instrumentId", "direction", "entryPrice", "exitPrice", "lotSize", "fees", "stopLoss"]);
+  const instId = useWatch({ control, name: "instrumentId" });
+  const direction = useWatch({ control, name: "direction" });
+  const entryPrice = useWatch({ control, name: "entryPrice" });
+  const exitPrice = useWatch({ control, name: "exitPrice" });
+  const lotSize = useWatch({ control, name: "lotSize" });
+  const fees = useWatch({ control, name: "fees" });
+  const stopLoss = useWatch({ control, name: "stopLoss" });
 
   useEffect(() => {
-    const [instId, direction, entryPrice, exitPrice, lotSize, fees, stopLoss] = watchedFields;
     const inst = instruments.find((i) => i.id === Number(instId));
     if (!inst || !entryPrice || !exitPrice || !lotSize) {
       setPnlPreview(null);
@@ -120,7 +123,7 @@ export default function TradeForm({ instruments, models, trade }: Props) {
     } catch {
       setPnlPreview(null);
     }
-  }, [watchedFields, instruments]);
+  }, [instId, direction, entryPrice, exitPrice, lotSize, fees, stopLoss, instruments]);
 
   function onSubmit(data: FormValues) {
     const fd = new FormData();
@@ -133,10 +136,11 @@ export default function TradeForm({ instruments, models, trade }: Props) {
     else fd.delete("followedPlan");
 
     startTransition(async () => {
-      if (trade) {
-        await updateTrade(trade.id, fd);
-      } else {
-        await createTrade(fd);
+      const result = trade
+        ? await updateTrade(trade.id, fd)
+        : await createTrade(fd);
+      if (result && "redirect" in result && result.redirect) {
+        router.push(result.redirect as string);
       }
     });
   }
@@ -270,14 +274,6 @@ export default function TradeForm({ instruments, models, trade }: Props) {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          <div>
-            <label className={labelCls}>Confidence (1-5)</label>
-            <input type="range" min={1} max={5} {...register("confidence")} className="w-full accent-blue-500" />
-            <div className="flex justify-between text-[10px] text-[#555] mt-0.5">
-              {[1, 2, 3, 4, 5].map((n) => <span key={n}>{n}</span>)}
-            </div>
-          </div>
-
           <div>
             <label className={labelCls}>Setup</label>
             <input
