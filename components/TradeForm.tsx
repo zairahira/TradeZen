@@ -35,6 +35,7 @@ interface Props {
   instruments: Instrument[];
   models: TradingModel[];
   trade?: Trade;
+  onSuccess?: () => void;
 }
 
 const inputCls =
@@ -43,7 +44,7 @@ const labelCls = "block text-xs text-[#666] uppercase tracking-wider mb-1";
 const sectionCls = "space-y-4";
 const sectionHeadCls = "text-xs font-semibold text-[#555] uppercase tracking-wider pb-1 border-b border-[#1a1a1a] mb-4";
 
-export default function TradeForm({ instruments, models, trade }: Props) {
+export default function TradeForm({ instruments, models, trade, onSuccess }: Props) {
   const [isPending, startTransition] = useTransition();
   const [pnlPreview, setPnlPreview] = useState<ReturnType<typeof calcTradePnl> | null>(null);
   const [localInstruments, setLocalInstruments] = useState(instruments);
@@ -187,7 +188,12 @@ export default function TradeForm({ instruments, models, trade }: Props) {
         ? await updateTrade(trade.id, fd)
         : await createTrade(fd);
       if (result && "redirect" in result && result.redirect) {
-        router.push(result.redirect as string);
+        if (onSuccess) {
+          onSuccess();
+          router.refresh();
+        } else {
+          router.push(result.redirect as string);
+        }
       }
     });
   }

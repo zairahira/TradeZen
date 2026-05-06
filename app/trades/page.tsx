@@ -2,7 +2,6 @@ import { getTradesWithComputed, getInstruments, getTradingModels } from "@/lib/q
 import TradesTable from "@/components/TradesTable";
 import Filters from "@/components/Filters";
 import { Suspense } from "react";
-import Link from "next/link";
 
 interface SearchParams {
   emotion?: string | string[];
@@ -41,27 +40,16 @@ export default async function TradesPage({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-white">
-          Trades{" "}
-          <span className="text-[#555] font-normal text-sm">({trades.length})</span>
-        </h1>
-        <Link
-          href="/trades/new"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-        >
-          + Add Trade
-        </Link>
-      </div>
+      <h1 className="text-lg font-semibold text-white">
+        Trades{" "}
+        <span className="text-[#555] font-normal text-sm">({trades.length})</span>
+      </h1>
 
-      <div className="flex gap-6">
-        <Suspense>
-          <Filters instruments={instruments} models={models} />
-        </Suspense>
-        <div className="flex-1 min-w-0">
-          <TradesTable trades={trades} />
-        </div>
-      </div>
+      <Suspense>
+        <Filters instruments={instruments} models={models} />
+      </Suspense>
+
+      <TradesTable trades={trades} instruments={instruments} models={models} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import AddTradeButton from "@/components/AddTradeButton";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -37,18 +38,10 @@ export default function RootLayout({
           <Link href="/trades" className="text-[#aaa] hover:text-white transition-colors">
             Trades
           </Link>
-          <Link
-            href="/trades/new"
-            className="ml-auto bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-3 py-1.5 rounded text-xs font-medium transition-colors"
-          >
-            + Add Trade
+          <Link href="/settings" className="text-[#aaa] hover:text-white transition-colors">
+            Settings
           </Link>
-          <Link href="/models" className="text-[#aaa] hover:text-white transition-colors">
-            Models
-          </Link>
-          <Link href="/instruments" className="text-[#aaa] hover:text-white transition-colors">
-            Instruments
-          </Link>
+          <AddTradeButton />
         </nav>
         <main className="flex-1 px-6 py-6 max-w-7xl mx-auto w-full">{children}</main>
       </body>

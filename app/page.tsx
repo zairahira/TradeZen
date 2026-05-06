@@ -6,7 +6,8 @@ import WinRateBySetup from "@/components/charts/WinRateBySetup";
 import WinRateByModel from "@/components/charts/WinRateByModel";
 import WinRateByTimeOfDay from "@/components/charts/WinRateByTimeOfDay";
 import RDistribution from "@/components/charts/RDistribution";
-import Link from "next/link";
+import DateFilterBar from "@/components/DateFilterBar";
+import { Suspense } from "react";
 
 interface SearchParams {
   dateFrom?: string;
@@ -26,14 +27,11 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center gap-4 justify-between">
         <h1 className="text-lg font-semibold text-white">Dashboard</h1>
-        <Link
-          href="/trades/new"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-        >
-          + Add Trade
-        </Link>
+        <Suspense>
+          <DateFilterBar />
+        </Suspense>
       </div>
 
       <KpiStrip

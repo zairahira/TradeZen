@@ -17,8 +17,8 @@ export async function createTradingModel(formData: FormData) {
   if (!parsed.success) return { error: parsed.error.flatten() };
 
   await db.insert(tradingModels).values({ name: parsed.data.name }).onConflictDoNothing();
-  revalidatePath("/models");
-  redirect("/models");
+  revalidatePath("/settings");
+  redirect("/settings");
 }
 
 export async function createTradingModelInline(formData: FormData) {
@@ -42,6 +42,6 @@ export async function deleteTradingModel(id: number) {
   await db.delete(tradingModels).where(eq(tradingModels.id, id));
   revalidatePath("/");
   revalidatePath("/trades");
-  revalidatePath("/models");
-  redirect("/models");
+  revalidatePath("/settings");
+  redirect("/settings");
 }

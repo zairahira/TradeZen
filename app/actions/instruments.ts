@@ -20,8 +20,8 @@ export async function createInstrument(formData: FormData) {
   if (!parsed.success) return { error: parsed.error.flatten() };
 
   await db.insert(instruments).values(parsed.data).onConflictDoNothing();
-  revalidatePath("/instruments");
-  redirect("/instruments");
+  revalidatePath("/settings");
+  redirect("/settings");
 }
 
 export async function createInstrumentInline(formData: FormData) {
@@ -46,12 +46,12 @@ export async function updateInstrument(id: number, formData: FormData) {
   if (!parsed.success) return { error: parsed.error.flatten() };
 
   await db.update(instruments).set(parsed.data).where(eq(instruments.id, id));
-  revalidatePath("/instruments");
-  redirect("/instruments");
+  revalidatePath("/settings");
+  redirect("/settings");
 }
 
 export async function deleteInstrument(id: number) {
   await db.delete(instruments).where(eq(instruments.id, id));
-  revalidatePath("/instruments");
-  redirect("/instruments");
+  revalidatePath("/settings");
+  redirect("/settings");
 }
