@@ -25,7 +25,7 @@ export default function AddTradeButton() {
       <button
         onClick={handleOpen}
         disabled={loading}
-        className="ml-auto bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer"
+        className="ml-auto bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer"
       >
         {loading ? "Loading..." : "+ Add Trade"}
       </button>

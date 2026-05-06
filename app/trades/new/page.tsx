@@ -9,9 +9,9 @@ export default async function NewTradePage() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <h1 className="text-lg font-semibold text-white">Add Trade</h1>
+      <h1 className="text-lg font-semibold text-ink">Add Trade</h1>
       {instruments.length === 0 ? (
-        <p className="text-[#666] text-sm">
+        <p className="text-ink-3 text-sm">
           No instruments configured.{" "}
           <a href="/instruments" className="text-blue-500 hover:underline">
             Add one first.

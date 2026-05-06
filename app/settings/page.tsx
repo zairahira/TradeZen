@@ -3,8 +3,8 @@ import { createInstrument, deleteInstrument } from "@/app/actions/instruments";
 import { createTradingModel, deleteTradingModel } from "@/app/actions/trading-models";
 import Link from "next/link";
 
-const inputCls = "w-full bg-[#0a0a0a] border border-[#333] rounded px-3 py-2 text-sm focus:outline-none focus:border-[#555]";
-const labelCls = "block text-[10px] text-[#555] uppercase tracking-wider mb-1";
+const inputCls = "w-full bg-canvas border border-line-strong rounded px-3 py-2 text-sm focus:outline-none focus:border-ink-3 text-ink";
+const labelCls = "block text-[10px] text-ink-4 uppercase tracking-wider mb-1";
 
 export default async function SettingsPage({
   searchParams,
@@ -19,20 +19,20 @@ export default async function SettingsPage({
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="text-lg font-semibold text-white">Settings</h1>
-        <p className="text-xs text-[#555] mt-1">Manage your instruments and trading models.</p>
+        <h1 className="text-lg font-semibold text-ink">Settings</h1>
+        <p className="text-xs text-ink-4 mt-1">Manage your instruments and trading models.</p>
       </div>
 
       {/* Tab bar */}
-      <div className="flex gap-1 border-b border-[#1a1a1a]">
+      <div className="flex gap-1 border-b border-line">
         {(["instruments", "models"] as const).map((t) => (
           <Link
             key={t}
             href={`/settings?tab=${t}`}
             className={`px-4 py-2 text-sm capitalize transition-colors border-b-2 -mb-px ${
               tab === t
-                ? "border-blue-500 text-white"
-                : "border-transparent text-[#555] hover:text-[#aaa]"
+                ? "border-blue-500 text-ink"
+                : "border-transparent text-ink-4 hover:text-ink-2"
             }`}
           >
             {t}
@@ -42,10 +42,10 @@ export default async function SettingsPage({
 
       {tab === "instruments" && (
         <div className="space-y-6">
-          <div className="bg-[#111] border border-[#1a1a1a] rounded-lg overflow-hidden">
+          <div className="bg-card border border-line rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-[#555] text-xs uppercase tracking-wider border-b border-[#1a1a1a]">
+                <tr className="text-ink-4 text-xs uppercase tracking-wider border-b border-line">
                   <th className="text-left px-4 py-3">Symbol</th>
                   <th className="text-left px-4 py-3">Name</th>
                   <th className="text-right px-4 py-3">Value/Point</th>
@@ -56,15 +56,15 @@ export default async function SettingsPage({
               <tbody>
                 {instruments.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-[#444]">No instruments yet</td>
+                    <td colSpan={5} className="px-4 py-8 text-center text-ink-4">No instruments yet</td>
                   </tr>
                 ) : (
                   instruments.map((inst) => (
-                    <tr key={inst.id} className="border-b border-[#0f0f0f] hover:bg-[#0f0f0f]">
-                      <td className="px-4 py-3 font-medium text-white">{inst.symbol}</td>
-                      <td className="px-4 py-3 text-[#aaa]">{inst.name}</td>
-                      <td className="px-4 py-3 text-right text-[#aaa]">{inst.valuePerPoint}</td>
-                      <td className="px-4 py-3 text-[#666]">{inst.currency}</td>
+                    <tr key={inst.id} className="border-b border-line hover:bg-card-2">
+                      <td className="px-4 py-3 font-medium text-ink">{inst.symbol}</td>
+                      <td className="px-4 py-3 text-ink-2">{inst.name}</td>
+                      <td className="px-4 py-3 text-right text-ink-2">{inst.valuePerPoint}</td>
+                      <td className="px-4 py-3 text-ink-3">{inst.currency}</td>
                       <td className="px-4 py-3 text-right">
                         <form
                           action={async () => {
@@ -84,8 +84,8 @@ export default async function SettingsPage({
             </table>
           </div>
 
-          <div className="bg-[#111] border border-[#1a1a1a] rounded-lg p-5 space-y-4">
-            <p className="text-sm font-medium text-white">Add Instrument</p>
+          <div className="bg-card border border-line rounded-lg p-5 space-y-4">
+            <p className="text-sm font-medium text-ink">Add Instrument</p>
             <form action={async (fd) => { "use server"; await createInstrument(fd); }} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
                 <label className={labelCls}>Symbol</label>
@@ -115,10 +115,10 @@ export default async function SettingsPage({
 
       {tab === "models" && (
         <div className="space-y-6">
-          <div className="bg-[#111] border border-[#1a1a1a] rounded-lg overflow-hidden">
+          <div className="bg-card border border-line rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-[#555] text-xs uppercase tracking-wider border-b border-[#1a1a1a]">
+                <tr className="text-ink-4 text-xs uppercase tracking-wider border-b border-line">
                   <th className="text-left px-4 py-3">Model</th>
                   <th className="px-4 py-3" />
                 </tr>
@@ -126,12 +126,12 @@ export default async function SettingsPage({
               <tbody>
                 {models.length === 0 ? (
                   <tr>
-                    <td colSpan={2} className="px-4 py-8 text-center text-[#444]">No models yet</td>
+                    <td colSpan={2} className="px-4 py-8 text-center text-ink-4">No models yet</td>
                   </tr>
                 ) : (
                   models.map((m) => (
-                    <tr key={m.id} className="border-b border-[#0f0f0f] hover:bg-[#0f0f0f]">
-                      <td className="px-4 py-3 text-[#e5e5e5]">{m.name}</td>
+                    <tr key={m.id} className="border-b border-line hover:bg-card-2">
+                      <td className="px-4 py-3 text-ink">{m.name}</td>
                       <td className="px-4 py-3 text-right">
                         <form
                           action={async () => {
@@ -151,15 +151,15 @@ export default async function SettingsPage({
             </table>
           </div>
 
-          <div className="bg-[#111] border border-[#1a1a1a] rounded-lg p-5 space-y-4">
-            <p className="text-sm font-medium text-white">Add Model</p>
-            <p className="text-xs text-[#555]">Tag trades with a model to track win rate per strategy.</p>
+          <div className="bg-card border border-line rounded-lg p-5 space-y-4">
+            <p className="text-sm font-medium text-ink">Add Model</p>
+            <p className="text-xs text-ink-4">Tag trades with a model to track win rate per strategy.</p>
             <form action={async (fd) => { "use server"; await createTradingModel(fd); }} className="flex gap-3">
               <input
                 name="name"
                 required
                 placeholder="e.g. Silver Bullet"
-                className="flex-1 bg-[#0a0a0a] border border-[#333] rounded px-3 py-2 text-sm focus:outline-none focus:border-[#555]"
+                className="flex-1 bg-canvas border border-line-strong rounded px-3 py-2 text-sm focus:outline-none focus:border-ink-3 text-ink"
               />
               <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors shrink-0 cursor-pointer">
                 Add

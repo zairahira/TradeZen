@@ -19,7 +19,7 @@ const ORDER = ["Pre-market", "Morning", "Lunch", "Afternoon", "Unknown"];
 
 export default function WinRateByTimeOfDay({ data }: Props) {
   if (data.length === 0) {
-    return <div className="h-[200px] flex items-center justify-center text-[#444] text-sm">No data</div>;
+    return <div className="h-[200px] flex items-center justify-center text-ink-4 text-sm">No data</div>;
   }
 
   const sorted = [...data].sort(
@@ -29,23 +29,23 @@ export default function WinRateByTimeOfDay({ data }: Props) {
   return (
     <ResponsiveContainer width="100%" height={200}>
       <BarChart data={sorted} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e1e1e" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" vertical={false} />
         <XAxis
           dataKey="bucket"
-          tick={{ fill: "#666", fontSize: 11 }}
+          tick={{ fill: "var(--ink-3)", fontSize: 11 }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
-          tick={{ fill: "#666", fontSize: 11 }}
+          tick={{ fill: "var(--ink-3)", fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
           domain={[0, 1]}
         />
         <Tooltip
-          contentStyle={{ background: "#111", border: "1px solid #333", borderRadius: 6 }}
-          labelStyle={{ color: "#aaa", fontSize: 11 }}
+          contentStyle={{ background: "var(--card)", border: "1px solid var(--line-strong)", borderRadius: 6 }}
+          labelStyle={{ color: "var(--ink-2)", fontSize: 11 }}
           formatter={(v) => [`${(Number(v) * 100).toFixed(1)}%`, "Win Rate"]}
         />
         <Bar dataKey="winRate" radius={[3, 3, 0, 0]}>

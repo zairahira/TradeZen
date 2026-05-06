@@ -39,10 +39,10 @@ interface Props {
 }
 
 const inputCls =
-  "w-full bg-[#0a0a0a] border border-[#333] rounded px-3 py-2 text-sm focus:outline-none focus:border-[#555] transition-colors";
-const labelCls = "block text-xs text-[#666] uppercase tracking-wider mb-1";
+  "w-full bg-canvas border border-line-strong rounded px-3 py-2 text-sm focus:outline-none focus:border-ink-3 transition-colors text-ink";
+const labelCls = "block text-xs text-ink-3 uppercase tracking-wider mb-1";
 const sectionCls = "space-y-4";
-const sectionHeadCls = "text-xs font-semibold text-[#555] uppercase tracking-wider pb-1 border-b border-[#1a1a1a] mb-4";
+const sectionHeadCls = "text-xs font-semibold text-ink-4 uppercase tracking-wider pb-1 border-b border-line mb-4";
 
 export default function TradeForm({ instruments, models, trade, onSuccess }: Props) {
   const [isPending, startTransition] = useTransition();
@@ -209,7 +209,7 @@ export default function TradeForm({ instruments, models, trade, onSuccess }: Pro
           {pnlPreview.rMultiple != null && (
             <Stat label="R Multiple" value={pnlPreview.rMultiple.toFixed(2) + "R"} color={pnlPreview.rMultiple >= 0 ? "text-emerald-400" : "text-red-400"} />
           )}
-          <span className={`self-center text-xs font-semibold px-2 py-0.5 rounded ${pnlPreview.outcome === "win" ? "bg-emerald-900/50 text-emerald-400" : pnlPreview.outcome === "loss" ? "bg-red-900/50 text-red-400" : "bg-[#222] text-[#aaa]"}`}>
+          <span className={`self-center text-xs font-semibold px-2 py-0.5 rounded ${pnlPreview.outcome === "win" ? "bg-emerald-900/50 text-emerald-400" : pnlPreview.outcome === "loss" ? "bg-red-900/50 text-red-400" : "bg-card-3 text-ink-2"}`}>
             {pnlPreview.outcome.toUpperCase()}
           </span>
         </div>
@@ -252,8 +252,8 @@ export default function TradeForm({ instruments, models, trade, onSuccess }: Pro
             {errors.instrumentId && <p className="text-xs text-red-400 mt-1">{errors.instrumentId.message}</p>}
 
             {showAddInstrument && (
-              <div className="mt-2 p-3 border border-[#333] rounded bg-[#0d0d0d] space-y-2">
-                <p className="text-xs text-[#666] uppercase tracking-wider font-semibold">New Instrument</p>
+              <div className="mt-2 p-3 border border-line-strong rounded bg-card-2 space-y-2">
+                <p className="text-xs text-ink-3 uppercase tracking-wider font-semibold">New Instrument</p>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     placeholder="Symbol (e.g. US100)"
@@ -315,7 +315,7 @@ export default function TradeForm({ instruments, models, trade, onSuccess }: Pro
                       setShowAddInstrument(false);
                       setNewInst({ symbol: "", name: "", valuePerPoint: "", currency: "USD" });
                     }}
-                    className="text-xs text-[#555] hover:text-[#aaa] border border-[#333] hover:border-[#555] px-3 py-1.5 rounded transition-colors"
+                    className="text-xs text-ink-4 hover:text-ink-2 border border-line-strong hover:border-ink-4 px-3 py-1.5 rounded transition-colors"
                   >
                     Cancel
                   </button>
@@ -330,7 +330,7 @@ export default function TradeForm({ instruments, models, trade, onSuccess }: Pro
               {(["long", "short"] as const).map((d) => (
                 <label key={d} className="flex-1">
                   <input type="radio" value={d} {...register("direction")} className="sr-only peer" />
-                  <span className="block text-center py-2 rounded border border-[#333] text-sm cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-900/30 transition-colors capitalize">
+                  <span className="block text-center py-2 rounded border border-line-strong text-sm cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-900/30 transition-colors capitalize text-ink-2">
                     {d}
                   </span>
                 </label>
@@ -407,7 +407,7 @@ export default function TradeForm({ instruments, models, trade, onSuccess }: Pro
                     className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
                       field.value === e
                         ? "border-blue-500 bg-blue-900/40 text-blue-300"
-                        : "border-[#333] text-[#888] hover:border-[#555]"
+                        : "border-line-strong text-ink-3 hover:border-ink-4"
                     }`}
                   >
                     {EMOTION_LABELS[e]}
@@ -463,8 +463,8 @@ export default function TradeForm({ instruments, models, trade, onSuccess }: Pro
             />
 
             {showAddModel && (
-              <div className="mt-2 p-3 border border-[#333] rounded bg-[#0d0d0d] space-y-2">
-                <p className="text-xs text-[#666] uppercase tracking-wider font-semibold">New Model</p>
+              <div className="mt-2 p-3 border border-line-strong rounded bg-card-2 space-y-2">
+                <p className="text-xs text-ink-3 uppercase tracking-wider font-semibold">New Model</p>
                 <input
                   placeholder="Model name (e.g. Silver Bullet)"
                   value={newModelName}
@@ -500,7 +500,7 @@ export default function TradeForm({ instruments, models, trade, onSuccess }: Pro
                       setShowAddModel(false);
                       setNewModelName("");
                     }}
-                    className="text-xs text-[#555] hover:text-[#aaa] border border-[#333] hover:border-[#555] px-3 py-1.5 rounded transition-colors"
+                    className="text-xs text-ink-4 hover:text-ink-2 border border-line-strong hover:border-ink-4 px-3 py-1.5 rounded transition-colors"
                   >
                     Cancel
                   </button>
@@ -511,7 +511,7 @@ export default function TradeForm({ instruments, models, trade, onSuccess }: Pro
 
           <div className="flex items-center gap-3 pt-5">
             <input type="checkbox" id="followedPlan" {...register("followedPlan")} className="w-4 h-4 accent-blue-500" />
-            <label htmlFor="followedPlan" className="text-sm text-[#aaa] cursor-pointer">
+            <label htmlFor="followedPlan" className="text-sm text-ink-2 cursor-pointer">
               Followed plan
             </label>
           </div>
@@ -542,7 +542,7 @@ export default function TradeForm({ instruments, models, trade, onSuccess }: Pro
                 const file = e.target.files?.[0];
                 if (file) applyFile(file);
               }}
-              className="text-sm text-[#888] file:mr-3 file:py-1.5 file:px-3 file:rounded file:border file:border-[#333] file:bg-[#111] file:text-[#aaa] file:text-xs hover:file:border-[#555] cursor-pointer"
+              className="text-sm text-ink-3 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border file:border-line-strong file:bg-card file:text-ink-2 file:text-xs hover:file:border-ink-4 cursor-pointer"
             />
             <button
               type="button"
@@ -558,14 +558,14 @@ export default function TradeForm({ instruments, models, trade, onSuccess }: Pro
                     }
                   }
                 } catch {
-                  // clipboard API not available or denied — user can still Ctrl+V
+                  // clipboard API not available or denied
                 }
               }}
-              className="text-xs text-[#666] hover:text-[#aaa] border border-[#333] hover:border-[#555] px-3 py-1.5 rounded transition-colors"
+              className="text-xs text-ink-3 hover:text-ink-2 border border-line-strong hover:border-ink-4 px-3 py-1.5 rounded transition-colors"
             >
               Paste from clipboard
             </button>
-            <span className="text-[10px] text-[#444]">or Ctrl+V anywhere on this page</span>
+            <span className="text-[10px] text-ink-4">or Ctrl+V anywhere on this page</span>
           </div>
 
           {screenshotPreview && (
@@ -574,12 +574,12 @@ export default function TradeForm({ instruments, models, trade, onSuccess }: Pro
               <img
                 src={screenshotPreview}
                 alt="Screenshot preview"
-                className="max-h-48 rounded border border-[#333] object-contain bg-[#111]"
+                className="max-h-48 rounded border border-line object-contain bg-card"
               />
               <button
                 type="button"
                 onClick={clearScreenshot}
-                className="absolute top-1 right-1 bg-[#111]/80 hover:bg-red-900/80 text-[#aaa] hover:text-white rounded px-1.5 py-0.5 text-xs transition-colors"
+                className="absolute top-1 right-1 bg-card/80 hover:bg-red-900/80 text-ink-2 hover:text-white rounded px-1.5 py-0.5 text-xs transition-colors"
               >
                 ✕
               </button>
@@ -602,7 +602,7 @@ export default function TradeForm({ instruments, models, trade, onSuccess }: Pro
 function Stat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div>
-      <p className="text-[10px] text-[#555] uppercase tracking-wider">{label}</p>
+      <p className="text-[10px] text-ink-4 uppercase tracking-wider">{label}</p>
       <p className={`text-base font-semibold ${color}`}>{value}</p>
     </div>
   );

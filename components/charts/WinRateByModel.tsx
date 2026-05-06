@@ -17,7 +17,7 @@ interface Props {
 
 export default function WinRateByModel({ data }: Props) {
   if (data.length === 0) {
-    return <div className="h-[240px] flex items-center justify-center text-[#444] text-sm">No data - tag trades with a model to see breakdown</div>;
+    return <div className="h-[240px] flex items-center justify-center text-ink-4 text-sm">No data - tag trades with a model to see breakdown</div>;
   }
 
   const sorted = [...data].sort((a, b) => b.winRate - a.winRate);
@@ -25,10 +25,10 @@ export default function WinRateByModel({ data }: Props) {
   return (
     <ResponsiveContainer width="100%" height={Math.max(240, sorted.length * 36)}>
       <BarChart data={sorted} layout="vertical" margin={{ top: 4, right: 20, left: 4, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e1e1e" horizontal={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" horizontal={false} />
         <XAxis
           type="number"
-          tick={{ fill: "#666", fontSize: 11 }}
+          tick={{ fill: "var(--ink-3)", fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
@@ -37,14 +37,14 @@ export default function WinRateByModel({ data }: Props) {
         <YAxis
           type="category"
           dataKey="model"
-          tick={{ fill: "#999", fontSize: 11 }}
+          tick={{ fill: "var(--ink-2)", fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           width={160}
         />
         <Tooltip
-          contentStyle={{ background: "#111", border: "1px solid #333", borderRadius: 6 }}
-          labelStyle={{ color: "#aaa", fontSize: 11 }}
+          contentStyle={{ background: "var(--card)", border: "1px solid var(--line-strong)", borderRadius: 6 }}
+          labelStyle={{ color: "var(--ink-2)", fontSize: 11 }}
           formatter={(v, name) => {
             if (name === "winRate") return [`${(Number(v) * 100).toFixed(1)}%`, "Win Rate"];
             return [Number(v).toFixed(2), String(name)];

@@ -31,23 +31,23 @@ export default function EquityCurve({ data }: Props) {
             <stop offset="95%" stopColor={color} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e1e1e" />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
         <XAxis
           dataKey="date"
-          tick={{ fill: "#666", fontSize: 11 }}
+          tick={{ fill: "var(--ink-3)", fontSize: 11 }}
           tickFormatter={(d) => format(new Date(d + "T00:00:00"), "MMM d")}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
-          tick={{ fill: "#666", fontSize: 11 }}
+          tick={{ fill: "var(--ink-3)", fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           tickFormatter={(v) => v.toFixed(0)}
         />
         <Tooltip
-          contentStyle={{ background: "#111", border: "1px solid #333", borderRadius: 6 }}
-          labelStyle={{ color: "#aaa", fontSize: 11 }}
+          contentStyle={{ background: "var(--card)", border: "1px solid var(--line-strong)", borderRadius: 6 }}
+          labelStyle={{ color: "var(--ink-2)", fontSize: 11 }}
           itemStyle={{ color: color }}
           formatter={(v) => [Number(v).toFixed(2), "Cum P&L"]}
         />
@@ -59,6 +59,6 @@ export default function EquityCurve({ data }: Props) {
 
 function EmptyChart({ label }: { label: string }) {
   return (
-    <div className="h-[220px] flex items-center justify-center text-[#444] text-sm">{label}</div>
+    <div className="h-[220px] flex items-center justify-center text-ink-4 text-sm">{label}</div>
   );
 }

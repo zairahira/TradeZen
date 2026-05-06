@@ -1,107 +1,182 @@
-# Trading Journal UI/UX Improvements
+# Trading Journal - Visual Redesign Plan
 
 ## Context
+The app has a hardcoded dark theme using Geist font and a flat palette of raw hex values (#111, #222, #aaa, etc.) scattered across every component. The goal is a Clean & Modern aesthetic (Linear/Vercel-style), Inter font at 16px, a charcoal dark theme, a warm-cream light theme with a toggle, smooth transitions, and better readability - without touching layouts.
 
-The trading journal has two core pain points:
-1. **Too many page hops** - Adding/editing trades navigates to dedicated pages; users must hit Back to return to their workflow
-2. **Scattered filters** - Full filters only exist on `/trades` as a permanent left sidebar; dashboard has no visible filter UI; the sidebar consumes ~180px of horizontal space at all times
-
-Goal: reduce navigation friction and consolidate filter controls without reworking the data layer.
-
----
-
-## Improvement List (for user review)
-
-### A - Reduce Navigation Hops
-
-**A1. "Add Trade" as a slide-over drawer**
-- Currently: top-nav button navigates to `/trades/new` (full-page load + back button needed)
-- Proposed: right-side drawer that slides over the current page
-- Saves: 2 navigations (forward + back) per trade entry
-- Files: `app/layout.tsx`, `components/TradeForm.tsx`, new `components/TradeDrawer.tsx`
-
-**A2. Trade row edit as a slide-over drawer**
-- Currently: clicking a table row navigates to `/trades/[id]` (full-page)
-- Proposed: right-side drawer with edit form + delete button
-- Saves: 2 navigations (forward + back) per edit
-- Files: `components/TradesTable.tsx`, `app/trades/[id]/page.tsx` (keep as fallback)
-
-**A3. Merge Models + Instruments into a single "Settings" page with tabs**
-- Currently: two separate top-nav links (Models, Instruments)
-- Proposed: single "Settings" nav link → `/settings` with Models | Instruments tabs
-- Saves: 1 nav link slot; groups admin tasks logically
-- Files: new `app/settings/page.tsx`, move logic from `app/models/` and `app/instruments/`
-
-**A4. Dashboard date filter bar (visible UI)**
-- Currently: date filter applied via URL params with no visible input on dashboard
-- Proposed: a compact date range bar at the top of the dashboard (Today / Week / Month / Year shortcuts + custom range)
-- Files: `app/page.tsx`, new `components/DateFilterBar.tsx`
+## Decisions
+- **Font**: Inter (replace Geist/Geist Mono from `next/font/google`)
+- **Dark bg**: charcoal ~#18181b
+- **Light bg**: warm cream ~#fdf8f2
+- **Accents**: keep emerald-400 (gains) and red-400 (losses) unchanged
+- **Base font size**: 16px
+- **Theme toggle**: `next-themes` package (SSR-safe, no flash)
 
 ---
 
-### B - Consolidate Filters
-
-**B5. Replace sidebar with collapsible top filter bar on Trades page**
-- Currently: permanent left sidebar (`min-w-[180px]`) with all filters, visible at all times
-- Proposed: "Filters" button above the table that toggles a horizontal filter panel; when collapsed, active filters show as dismissible chips/pills
-- Saves: ~180px of horizontal space for the table; filters visible on demand
-- Files: `components/Filters.tsx`, `app/trades/page.tsx`
-
-**B6. Active filter chip summary**
-- Currently: no summary of which filters are active unless you look at the sidebar
-- Proposed: row of chips below the filter bar showing active filters; each chip has an X to remove it; shows filter count badge on the toggle button
-- Part of B5 implementation
-
-**B7. Unified date filter (dashboard + trades share same component)**
-- Currently: dashboard date filter is URL-only; trades date filter is part of Filters sidebar
-- Proposed: extract `DateFilterBar` and reuse it in both dashboard and trades filter bar
-- Files: new `components/DateFilterBar.tsx`, used in both `app/page.tsx` and `components/Filters.tsx`
+## Step 1 - Install next-themes
+```bash
+npm install next-themes
+```
 
 ---
 
-### C - Visual Polish
+## Step 2 - Redesign `app/globals.css`
 
-**C8. Trades table empty state**
-- Currently: empty table shows nothing when no trades match filters
-- Proposed: centered message "No trades match your filters" with a "Clear filters" link
-- Files: `components/TradesTable.tsx`
+Replace with a full semantic token system:
 
-**C9. Quick date shortcuts on dashboard**
-- Part of A4 - add Today / This Week / This Month / This Year shortcut buttons
-- Makes it 1-click to switch timeframes instead of manually entering dates
+```css
+@import "tailwindcss";
+
+/* Light theme (default :root) */
+:root {
+  --canvas:          #fdf8f2;   /* page background */
+  --card:            #ffffff;   /* card / nav */
+  --card-2:          #f7f1ea;   /* slightly elevated surface */
+  --card-3:          #ede8e0;   /* deeper surface / hover bg */
+  --line:            #e4ddd4;   /* default border */
+  --line-strong:     #d4cec6;   /* strong border */
+  --ink:             #18181b;   /* primary text */
+  --ink-2:           #3f3f46;   /* secondary text */
+  --ink-3:           #71717a;   /* muted text */
+  --ink-4:           #a1a1aa;   /* subtle / placeholder */
+  color-scheme: light;
+}
+
+/* Dark theme */
+.dark {
+  --canvas:          #18181b;
+  --card:            #232327;
+  --card-2:          #2a2a2e;
+  --card-3:          #303034;
+  --line:            #2d2d32;
+  --line-strong:     #3d3d42;
+  --ink:             #f4f4f5;
+  --ink-2:           #a1a1aa;
+  --ink-3:           #71717a;
+  --ink-4:           #52525b;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-canvas:     var(--canvas);
+  --color-card:       var(--card);
+  --color-card-2:     var(--card-2);
+  --color-card-3:     var(--card-3);
+  --color-line:       var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink:        var(--ink);
+  --color-ink-2:      var(--ink-2);
+  --color-ink-3:      var(--ink-3);
+  --color-ink-4:      var(--ink-4);
+  --font-sans:        var(--font-inter);
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Smooth transitions on all themed elements */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+
+input, select, textarea {
+  color-scheme: light dark;
+}
+```
 
 ---
 
-## Critical Files
+## Step 3 - Update `app/layout.tsx`
 
-| File | Change |
-|------|--------|
-| `app/layout.tsx` | Update nav: remove Models/Instruments links, add Settings; add global drawer state |
-| `app/page.tsx` | Add DateFilterBar component |
-| `app/trades/page.tsx` | Switch sidebar layout to top filter bar |
-| `app/settings/page.tsx` | New - tabbed Models + Instruments page |
-| `components/Filters.tsx` | Refactor into collapsible top bar with chips |
-| `components/TradesTable.tsx` | Add row click → drawer trigger; empty state |
-| `components/TradeForm.tsx` | Extract into drawer-compatible component |
-| `components/TradeDrawer.tsx` | New - right-side slide-over drawer |
-| `components/DateFilterBar.tsx` | New - shared date filter with shortcuts |
+- Replace `Geist`/`Geist_Mono` imports with `Inter` from `next/font/google`
+- Add `suppressHydrationWarning` to `<html>` (required by next-themes)
+- Wrap `<body>` with `<ThemeProvider>`
+- Add `<ThemeToggle />` to nav (right side, `ml-auto`)
+- Replace all hardcoded hex classes with semantic tokens:
+  - `bg-[#0a0a0a]` → `bg-canvas`
+  - `bg-[#111]` → `bg-card`
+  - `border-[#222]` → `border-line`
+  - `text-[#e5e5e5]` → `text-ink`
+  - `text-[#aaa]` → `text-ink-2`
 
 ---
 
-## Reusable Patterns Found
+## Step 4 - Create `components/Providers.tsx`
+Client component that wraps `ThemeProvider` from next-themes:
+```tsx
+'use client';
+import { ThemeProvider } from 'next-themes';
+export default function Providers({ children }) {
+  return <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>{children}</ThemeProvider>;
+}
+```
 
-- `components/TradeForm.tsx` - already works as a client component; just needs drawer wrapper
-- URL search param pattern in `components/Filters.tsx` - reuse toggle()/update() logic in new top bar
-- Inline model/instrument creation already exists in TradeForm - no change needed
+---
+
+## Step 5 - Create `components/ThemeToggle.tsx`
+Client component with sun/moon SVG icons and `useTheme()` from next-themes.
+Styled as a small ghost icon button, placed at `ml-auto` in the nav.
+
+---
+
+## Step 6 - Replace hardcoded colors across all files
+
+### Color mapping
+| Old hex(es)         | New Tailwind class |
+|---------------------|--------------------|
+| `#0a0a0a`, `#0d0d0d`, `#0f0f0f` | `bg-canvas` |
+| `#111`, `#1e1e1e`   | `bg-card` / inline `var(--card)` |
+| `#1a1a1a`           | `bg-card-2` / inline `var(--card-2)` |
+| `#222` (bg)         | `bg-card-3` |
+| `#222`, `#1a1a1a` (border) | `border-line` |
+| `#333` (border)     | `border-line-strong` |
+| `#e5e5e5`           | `text-ink` |
+| `#aaa`, `#bbb`      | `text-ink-2` |
+| `#666`, `#888`, `#999` | `text-ink-3` |
+| `#444`, `#555`      | `text-ink-4` |
+| `#0d1a0d` (green bg) | keep as-is (it's a semantic accent bg) |
+| `#1a3a1a` (green border) | keep as-is |
+| `#2563eb` (primary btn) | keep as-is |
+
+### Files to update
+- `app/layout.tsx`
+- `app/page.tsx`
+- `app/trades/page.tsx`
+- `app/trades/[id]/page.tsx`
+- `app/trades/new/page.tsx`
+- `app/settings/page.tsx`
+- `components/KpiStrip.tsx`
+- `components/Filters.tsx`
+- `components/TradeForm.tsx`
+- `components/DateFilterBar.tsx`
+- `components/AddTradeButton.tsx`
+- `components/TradesTable.tsx`
+- `components/TradeDrawer.tsx`
+- `components/charts/EquityCurve.tsx`
+- `components/charts/WinRateByEmotion.tsx`
+- `components/charts/WinRateBySetup.tsx`
+- `components/charts/WinRateByModel.tsx`
+- `components/charts/WinRateByTimeOfDay.tsx`
+- `components/charts/RDistribution.tsx`
+
+For chart components: inline `style` objects use `var(--card)`, `var(--line)`, `var(--ink-2)` etc. instead of raw hex.
 
 ---
 
 ## Verification
-
-1. Add a trade via drawer without leaving Dashboard
-2. Edit a trade via drawer without leaving Trades page
-3. Apply emotion + outcome filters from top bar; confirm chips appear
-4. Clear individual filters via chips
-5. Navigate to Settings - confirm Models and Instruments tabs work
-6. Check trades table shows empty state when filters return nothing
-7. Verify responsive layout at 375px (drawer full-width on mobile)
+1. `npm run dev` - confirm app loads with no TS errors
+2. Check dark theme renders with charcoal bg + warm text
+3. Click theme toggle - verify smooth 0.15s transition to warm cream light theme
+4. Check gain/loss accents still show emerald/red
+5. Check mobile viewport - font size and spacing should feel more spacious
+6. Check charts re-render correctly with theme-aware colors

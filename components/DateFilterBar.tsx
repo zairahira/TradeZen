@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { format, startOfWeek, startOfMonth, startOfYear, endOfDay } from "date-fns";
+import { format, startOfWeek, startOfMonth, startOfYear } from "date-fns";
 
 const SHORTCUTS = [
   {
@@ -59,7 +59,6 @@ export default function DateFilterBar() {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {/* Shortcut buttons */}
       {SHORTCUTS.map((s) => {
         const { dateFrom: f, dateTo: t } = s.range();
         return (
@@ -69,7 +68,7 @@ export default function DateFilterBar() {
             className={`text-xs px-2.5 py-1 rounded border transition-colors cursor-pointer ${
               isActive(f, t)
                 ? "bg-blue-900/40 text-blue-300 border-blue-700"
-                : "text-[#666] border-[#333] hover:text-[#aaa] hover:border-[#555]"
+                : "text-ink-3 border-line-strong hover:text-ink-2 hover:border-ink-4"
             }`}
           >
             {s.label}
@@ -77,27 +76,26 @@ export default function DateFilterBar() {
         );
       })}
 
-      {/* Custom date inputs */}
       <input
         type="date"
         value={dateFrom}
         onChange={(e) => applyRange(e.target.value, dateTo)}
-        className="bg-[#0a0a0a] border border-[#333] rounded px-2 py-1 text-xs text-[#aaa] focus:outline-none focus:border-[#555]"
+        className="bg-canvas border border-line-strong rounded px-2 py-1 text-xs text-ink-2 focus:outline-none focus:border-ink-3"
         placeholder="From"
       />
-      <span className="text-[#444] text-xs">-</span>
+      <span className="text-ink-4 text-xs">-</span>
       <input
         type="date"
         value={dateTo}
         onChange={(e) => applyRange(dateFrom, e.target.value)}
-        className="bg-[#0a0a0a] border border-[#333] rounded px-2 py-1 text-xs text-[#aaa] focus:outline-none focus:border-[#555]"
+        className="bg-canvas border border-line-strong rounded px-2 py-1 text-xs text-ink-2 focus:outline-none focus:border-ink-3"
         placeholder="To"
       />
 
       {hasFilter && (
         <button
           onClick={() => applyRange("", "")}
-          className="text-xs text-[#555] hover:text-[#aaa] transition-colors cursor-pointer"
+          className="text-xs text-ink-4 hover:text-ink-2 transition-colors cursor-pointer"
         >
           Clear
         </button>

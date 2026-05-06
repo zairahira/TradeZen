@@ -40,7 +40,7 @@ export default function KpiStrip({
       value: `${totalPnl >= 0 ? "+" : ""}${fmt(totalPnl)}`,
       color: totalPnl >= 0 ? "text-emerald-400" : "text-red-400",
     },
-    { label: "Trades", value: totalTrades.toString(), color: "text-white" },
+    { label: "Trades", value: totalTrades.toString(), color: "text-ink" },
     {
       label: "Win Rate",
       value: `${fmt(winRate * 100, 1)}%`,
@@ -75,13 +75,13 @@ export default function KpiStrip({
         const isOpen = open === k.label;
 
         return (
-          <div key={k.label} className="relative bg-[#111] border border-[#222] rounded-lg p-4">
+          <div key={k.label} className="relative bg-card border border-line rounded-lg p-4">
             <div className="flex items-center gap-1 mb-1">
-              <p className="text-[11px] text-[#666] uppercase tracking-wider">{k.label}</p>
+              <p className="text-[11px] text-ink-3 uppercase tracking-wider">{k.label}</p>
               {hasInfo && (
                 <button
                   onClick={() => setOpen(isOpen ? null : k.label)}
-                  className="text-[#444] hover:text-[#888] transition-colors leading-none"
+                  className="text-ink-4 hover:text-ink-2 transition-colors leading-none"
                   aria-label={`About ${k.label}`}
                 >
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
@@ -99,8 +99,8 @@ export default function KpiStrip({
                   className="fixed inset-0 z-10"
                   onClick={() => setOpen(null)}
                 />
-                <div className="absolute z-20 top-full left-0 mt-2 w-64 bg-[#1a1a1a] border border-[#333] rounded-lg p-3 shadow-xl text-xs text-[#bbb] leading-relaxed">
-                  <p className="font-medium text-white mb-1">{k.label}</p>
+                <div className="absolute z-20 top-full left-0 mt-2 w-64 bg-card-2 border border-line-strong rounded-lg p-3 shadow-xl text-xs text-ink-2 leading-relaxed">
+                  <p className="font-medium text-ink mb-1">{k.label}</p>
                   {EXPLANATIONS[k.label]}
                 </div>
               </>

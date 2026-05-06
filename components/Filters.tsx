@@ -19,7 +19,6 @@ export default function Filters({ instruments, models }: Props) {
   const [openGroup, setOpenGroup] = useState<GroupKey | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -69,7 +68,6 @@ export default function Filters({ instruments, models }: Props) {
   const dateFrom = sp.get("dateFrom") ?? "";
   const dateTo = sp.get("dateTo") ?? "";
 
-  // Build chip list for active filters
   const chips: { label: string; onRemove: () => void }[] = [
     ...activeEmotions.map((e) => ({
       label: `Emotion: ${EMOTION_LABELS[e as keyof typeof EMOTION_LABELS] ?? e}`,
@@ -106,8 +104,8 @@ export default function Filters({ instruments, models }: Props) {
           active
             ? "bg-blue-900/30 text-blue-300 border-blue-700"
             : isOpen
-            ? "text-white border-[#555] bg-[#1a1a1a]"
-            : "text-[#666] border-[#333] hover:text-[#aaa] hover:border-[#555]"
+            ? "text-ink border-ink-3 bg-card-2"
+            : "text-ink-3 border-line-strong hover:text-ink-2 hover:border-ink-4"
         }`}
       >
         {label}
@@ -135,46 +133,43 @@ export default function Filters({ instruments, models }: Props) {
     `flex items-center gap-2 w-full text-left text-xs px-3 py-1.5 rounded transition-colors cursor-pointer ${
       active
         ? "bg-blue-900/40 text-blue-300"
-        : "text-[#888] hover:text-white hover:bg-[#1a1a1a]"
+        : "text-ink-3 hover:text-ink hover:bg-card-2"
     }`;
 
   const dropdownCls =
-    "absolute top-full left-0 mt-1 z-30 bg-[#111] border border-[#222] rounded-lg shadow-xl overflow-y-auto max-h-64 min-w-[180px] py-1";
+    "absolute top-full left-0 mt-1 z-30 bg-card border border-line rounded-lg shadow-xl overflow-y-auto max-h-64 min-w-[180px] py-1";
 
   const dateCount = (dateFrom ? 1 : 0) + (dateTo ? 1 : 0);
 
   return (
     <div className="space-y-2" ref={containerRef}>
-      {/* Filter group buttons */}
       <div className="flex items-center gap-2 flex-wrap">
-        {/* Date */}
         <div className="relative">
           {groupBtn("date", "Date", dateCount)}
           {openGroup === "date" && (
             <div className={dropdownCls + " w-56 p-3 space-y-2"}>
               <div>
-                <p className="text-[10px] text-[#555] uppercase tracking-wider mb-1">From</p>
+                <p className="text-[10px] text-ink-4 uppercase tracking-wider mb-1">From</p>
                 <input
                   type="date"
                   value={dateFrom}
                   onChange={(e) => update("dateFrom", e.target.value)}
-                  className="w-full bg-[#0a0a0a] border border-[#333] rounded px-2 py-1.5 text-xs text-[#aaa] focus:outline-none focus:border-[#555]"
+                  className="w-full bg-canvas border border-line-strong rounded px-2 py-1.5 text-xs text-ink-2 focus:outline-none focus:border-ink-3"
                 />
               </div>
               <div>
-                <p className="text-[10px] text-[#555] uppercase tracking-wider mb-1">To</p>
+                <p className="text-[10px] text-ink-4 uppercase tracking-wider mb-1">To</p>
                 <input
                   type="date"
                   value={dateTo}
                   onChange={(e) => update("dateTo", e.target.value)}
-                  className="w-full bg-[#0a0a0a] border border-[#333] rounded px-2 py-1.5 text-xs text-[#aaa] focus:outline-none focus:border-[#555]"
+                  className="w-full bg-canvas border border-line-strong rounded px-2 py-1.5 text-xs text-ink-2 focus:outline-none focus:border-ink-3"
                 />
               </div>
             </div>
           )}
         </div>
 
-        {/* Emotion */}
         <div className="relative">
           {groupBtn("emotion", "Emotion", activeEmotions.length)}
           {openGroup === "emotion" && (
@@ -193,7 +188,6 @@ export default function Filters({ instruments, models }: Props) {
           )}
         </div>
 
-        {/* Outcome */}
         <div className="relative">
           {groupBtn("outcome", "Outcome", activeOutcomes.length)}
           {openGroup === "outcome" && (
@@ -210,7 +204,6 @@ export default function Filters({ instruments, models }: Props) {
           )}
         </div>
 
-        {/* Symbol */}
         {instruments.length > 0 && (
           <div className="relative">
             {groupBtn("symbol", "Symbol", activeSymbols.length)}
@@ -229,7 +222,6 @@ export default function Filters({ instruments, models }: Props) {
           </div>
         )}
 
-        {/* Model */}
         {models.length > 0 && (
           <div className="relative">
             {groupBtn("model", "Model", activeModels.length)}
@@ -248,7 +240,6 @@ export default function Filters({ instruments, models }: Props) {
           </div>
         )}
 
-        {/* Plan */}
         <div className="relative">
           {groupBtn("plan", "Plan", activePlan ? 1 : 0)}
           {openGroup === "plan" && (
@@ -272,14 +263,13 @@ export default function Filters({ instruments, models }: Props) {
         {totalCount > 0 && (
           <button
             onClick={() => router.push(pathname)}
-            className="text-xs text-[#555] hover:text-[#aaa] transition-colors cursor-pointer ml-1"
+            className="text-xs text-ink-4 hover:text-ink-2 transition-colors cursor-pointer ml-1"
           >
             Clear all
           </button>
         )}
       </div>
 
-      {/* Active chips */}
       {chips.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {chips.map((chip, i) => (

@@ -24,20 +24,20 @@ export default async function TradeDetailPage({
   return (
     <div className="max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-white">
+        <h1 className="text-lg font-semibold text-ink">
           {trade.symbol} - {trade.tradeDate}
         </h1>
         <DeleteTradeButton id={trade.id} />
       </div>
 
       {trade.screenshotPath && (
-        <div className="rounded-lg overflow-hidden border border-[#222]">
+        <div className="rounded-lg overflow-hidden border border-line">
           <Image
             src={`/api/uploads/${trade.screenshotPath}`}
             alt="Trade screenshot"
             width={900}
             height={500}
-            className="w-full object-contain bg-[#111]"
+            className="w-full object-contain bg-card"
           />
         </div>
       )}

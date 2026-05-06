@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import Link from "next/link";
 import AddTradeButton from "@/components/AddTradeButton";
+import Providers from "@/components/Providers";
+import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -25,25 +22,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-[#0a0a0a] text-[#e5e5e5]">
-        <nav className="border-b border-[#222] bg-[#111] px-6 py-3 flex items-center gap-6 text-sm shrink-0">
-          <span className="font-semibold text-white tracking-tight mr-2">TJ</span>
-          <Link href="/" className="text-[#aaa] hover:text-white transition-colors">
-            Dashboard
-          </Link>
-          <Link href="/trades" className="text-[#aaa] hover:text-white transition-colors">
-            Trades
-          </Link>
-          <Link href="/settings" className="text-[#aaa] hover:text-white transition-colors">
-            Settings
-          </Link>
-          <AddTradeButton />
-        </nav>
-        <main className="flex-1 px-6 py-6 max-w-7xl mx-auto w-full">{children}</main>
+    <html lang="en" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-canvas text-ink">
+        <Providers>
+          <nav className="border-b border-line bg-card px-6 py-3 flex items-center gap-6 text-sm shrink-0">
+            <span className="font-semibold text-ink tracking-tight mr-2">TJ</span>
+            <Link href="/" className="text-ink-2 hover:text-ink transition-colors">
+              Dashboard
+            </Link>
+            <Link href="/trades" className="text-ink-2 hover:text-ink transition-colors">
+              Trades
+            </Link>
+            <Link href="/settings" className="text-ink-2 hover:text-ink transition-colors">
+              Settings
+            </Link>
+            <AddTradeButton />
+            <ThemeToggle />
+          </nav>
+          <main className="flex-1 px-6 py-6 max-w-7xl mx-auto w-full">{children}</main>
+        </Providers>
       </body>
     </html>
   );

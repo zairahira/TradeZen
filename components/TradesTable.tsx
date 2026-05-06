@@ -56,7 +56,7 @@ export default function TradesTable({ trades, instruments, models }: Props) {
 
   if (trades.length === 0) {
     return (
-      <div className="text-center py-16 text-[#444]">
+      <div className="text-center py-16 text-ink-4">
         No trades match your filters.{" "}
         <button
           onClick={() => router.push("/trades")}
@@ -71,10 +71,9 @@ export default function TradesTable({ trades, instruments, models }: Props) {
   return (
     <>
       <div className="space-y-2">
-        {/* Bulk action bar */}
         {selected.size > 0 && (
-          <div className="flex items-center gap-3 bg-[#1a1a1a] border border-[#333] rounded-lg px-4 py-2">
-            <span className="text-sm text-[#aaa]">
+          <div className="flex items-center gap-3 bg-card-2 border border-line rounded-lg px-4 py-2">
+            <span className="text-sm text-ink-2">
               {selected.size} trade{selected.size > 1 ? "s" : ""} selected
             </span>
             <button
@@ -86,7 +85,7 @@ export default function TradesTable({ trades, instruments, models }: Props) {
             </button>
             <button
               onClick={() => setSelected(new Set())}
-              className="text-xs text-[#555] hover:text-[#aaa] transition-colors cursor-pointer"
+              className="text-xs text-ink-4 hover:text-ink-2 transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -96,7 +95,7 @@ export default function TradesTable({ trades, instruments, models }: Props) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm border-collapse">
             <thead>
-              <tr className="text-[#555] text-xs uppercase tracking-wider border-b border-[#1a1a1a]">
+              <tr className="text-ink-4 text-xs uppercase tracking-wider border-b border-line">
                 <th className="py-2 pr-3 w-8">
                   <input
                     type="checkbox"
@@ -126,8 +125,8 @@ export default function TradesTable({ trades, instruments, models }: Props) {
                 return (
                   <tr
                     key={t.id}
-                    className={`border-b border-[#111] transition-colors cursor-pointer ${
-                      isSelected ? "bg-blue-950/30" : "hover:bg-[#111]"
+                    className={`border-b border-line transition-colors cursor-pointer ${
+                      isSelected ? "bg-blue-950/30" : "hover:bg-card-2"
                     }`}
                   >
                     <td className="py-2.5 pr-3" onClick={(e) => e.stopPropagation()}>
@@ -138,10 +137,10 @@ export default function TradesTable({ trades, instruments, models }: Props) {
                         className="w-3.5 h-3.5 accent-blue-500 cursor-pointer"
                       />
                     </td>
-                    <td className="py-2.5 pr-4 text-[#888] whitespace-nowrap" onClick={() => setEditTrade(t)}>
+                    <td className="py-2.5 pr-4 text-ink-3 whitespace-nowrap" onClick={() => setEditTrade(t)}>
                       {format(new Date(t.tradeDate + "T00:00:00"), "MMM d, yy")}
                     </td>
-                    <td className="py-2.5 pr-4 font-medium text-white" onClick={() => setEditTrade(t)}>
+                    <td className="py-2.5 pr-4 font-medium text-ink" onClick={() => setEditTrade(t)}>
                       {t.symbol}
                     </td>
                     <td className="py-2.5 pr-4" onClick={() => setEditTrade(t)}>
@@ -149,22 +148,22 @@ export default function TradesTable({ trades, instruments, models }: Props) {
                         {t.direction}
                       </span>
                     </td>
-                    <td className="py-2.5 pr-4 text-right text-[#aaa]" onClick={() => setEditTrade(t)}>{t.entryPrice}</td>
-                    <td className="py-2.5 pr-4 text-right text-[#aaa]" onClick={() => setEditTrade(t)}>{t.exitPrice}</td>
-                    <td className="py-2.5 pr-4 text-right text-[#aaa]" onClick={() => setEditTrade(t)}>{t.lotSize}</td>
+                    <td className="py-2.5 pr-4 text-right text-ink-2" onClick={() => setEditTrade(t)}>{t.entryPrice}</td>
+                    <td className="py-2.5 pr-4 text-right text-ink-2" onClick={() => setEditTrade(t)}>{t.exitPrice}</td>
+                    <td className="py-2.5 pr-4 text-right text-ink-2" onClick={() => setEditTrade(t)}>{t.lotSize}</td>
                     <td className={`py-2.5 pr-4 text-right font-medium ${t.netPnl >= 0 ? "text-emerald-400" : "text-red-400"}`} onClick={() => setEditTrade(t)}>
                       {t.netPnl >= 0 ? "+" : ""}{fmt(t.netPnl)}
                     </td>
-                    <td className={`py-2.5 pr-4 text-right ${t.rMultiple == null ? "text-[#444]" : t.rMultiple >= 0 ? "text-emerald-400" : "text-red-400"}`} onClick={() => setEditTrade(t)}>
+                    <td className={`py-2.5 pr-4 text-right ${t.rMultiple == null ? "text-ink-4" : t.rMultiple >= 0 ? "text-emerald-400" : "text-red-400"}`} onClick={() => setEditTrade(t)}>
                       {t.rMultiple != null ? t.rMultiple.toFixed(2) + "R" : "-"}
                     </td>
-                    <td className="py-2.5 pr-4 text-[#888]" onClick={() => setEditTrade(t)}>
+                    <td className="py-2.5 pr-4 text-ink-3" onClick={() => setEditTrade(t)}>
                       {EMOTION_LABELS[t.preEmotion as keyof typeof EMOTION_LABELS] ?? t.preEmotion}
                     </td>
-                    <td className="py-2.5 pr-4 text-[#666] text-xs" onClick={() => setEditTrade(t)}>{t.setup ?? "-"}</td>
-                    <td className="py-2.5 pr-4 text-[#666] text-xs" onClick={() => setEditTrade(t)}>{t.modelName ?? "-"}</td>
+                    <td className="py-2.5 pr-4 text-ink-3 text-xs" onClick={() => setEditTrade(t)}>{t.setup ?? "-"}</td>
+                    <td className="py-2.5 pr-4 text-ink-3 text-xs" onClick={() => setEditTrade(t)}>{t.modelName ?? "-"}</td>
                     <td className="py-2.5" onClick={() => setEditTrade(t)}>
-                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${t.outcome === "win" ? "bg-emerald-900/30 text-emerald-400" : t.outcome === "loss" ? "bg-red-900/30 text-red-400" : "bg-[#222] text-[#888]"}`}>
+                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${t.outcome === "win" ? "bg-emerald-900/30 text-emerald-400" : t.outcome === "loss" ? "bg-red-900/30 text-red-400" : "bg-card-3 text-ink-3"}`}>
                         {t.outcome}
                       </span>
                     </td>

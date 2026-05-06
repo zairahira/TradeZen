@@ -28,7 +28,7 @@ export default async function DashboardPage({
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-4 justify-between">
-        <h1 className="text-lg font-semibold text-white">Dashboard</h1>
+        <h1 className="text-lg font-semibold text-ink">Dashboard</h1>
         <Suspense>
           <DateFilterBar />
         </Suspense>
@@ -85,10 +85,10 @@ function ChartCard({
   className?: string;
 }) {
   return (
-    <div className={`bg-[#111] border border-[#1a1a1a] rounded-lg p-5 ${className}`}>
+    <div className={`bg-card border border-line rounded-lg p-5 ${className}`}>
       <div className="mb-4">
-        <p className="text-sm font-medium text-white">{title}</p>
-        {subtitle && <p className="text-xs text-[#555] mt-0.5">{subtitle}</p>}
+        <p className="text-sm font-medium text-ink">{title}</p>
+        {subtitle && <p className="text-xs text-ink-4 mt-0.5">{subtitle}</p>}
       </div>
       {children}
     </div>

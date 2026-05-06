@@ -40,9 +40,9 @@ export default async function TradesPage({
 
   return (
     <div className="space-y-4">
-      <h1 className="text-lg font-semibold text-white">
+      <h1 className="text-lg font-semibold text-ink">
         Trades{" "}
-        <span className="text-[#555] font-normal text-sm">({trades.length})</span>
+        <span className="text-ink-4 font-normal text-sm">({trades.length})</span>
       </h1>
 
       <Suspense>
