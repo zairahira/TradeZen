@@ -12,8 +12,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Trading Journal",
-  description: "Day trading journal - track emotions, performance, and edge",
+  title: "TradeZen",
+  description: "TradeZen - track emotions, performance, and edge",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-canvas text-ink">
         <Providers>
           <nav className="border-b border-line bg-card px-6 py-3 flex items-center gap-6 text-sm shrink-0">
-            <span className="font-semibold text-ink tracking-tight mr-2">TJ</span>
+            <span className="font-semibold text-ink tracking-tight mr-2">TradeZen</span>
             <Link href="/" className="text-ink-2 hover:text-ink transition-colors">
               Dashboard
             </Link>

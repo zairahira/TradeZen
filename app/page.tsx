@@ -45,7 +45,7 @@ export default async function DashboardPage({
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChartCard title="Equity Curve">
+        <ChartCard title="Equity Curve" tooltip="Cumulative P&L over time, showing how your account balance grows or shrinks trade by trade.">
           <EquityCurve data={stats.equityCurve} />
         </ChartCard>
 
@@ -65,7 +65,7 @@ export default async function DashboardPage({
           <WinRateByTimeOfDay data={stats.byTimeOfDay} />
         </ChartCard>
 
-        <ChartCard title="R Multiple Distribution" className="lg:col-span-2">
+        <ChartCard title="R Multiple Distribution" tooltip="R-multiple measures each trade's gain or loss relative to your initial risk (1R). A +2R trade made twice your risk; a -1R trade lost exactly your risk amount.">
           <RDistribution data={stats.rDistribution} />
         </ChartCard>
       </div>
@@ -76,18 +76,33 @@ export default async function DashboardPage({
 function ChartCard({
   title,
   subtitle,
+  tooltip,
   children,
   className = "",
 }: {
   title: string;
   subtitle?: string;
+  tooltip?: string;
   children: React.ReactNode;
   className?: string;
 }) {
   return (
     <div className={`bg-card border border-line rounded-lg p-5 ${className}`}>
       <div className="mb-4">
-        <p className="text-sm font-medium text-ink">{title}</p>
+        <div className="flex items-center gap-1.5">
+          <p className="text-sm font-medium text-ink">{title}</p>
+          {tooltip && (
+            <div className="relative group">
+              <span className="flex items-center justify-center w-4 h-4 rounded-full border border-line text-ink-4 text-[10px] font-medium cursor-default select-none leading-none">
+                ?
+              </span>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 px-3 py-2 rounded-md bg-card border border-line text-xs text-ink-2 shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10">
+                {tooltip}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-line" />
+              </div>
+            </div>
+          )}
+        </div>
         {subtitle && <p className="text-xs text-ink-4 mt-0.5">{subtitle}</p>}
       </div>
       {children}
