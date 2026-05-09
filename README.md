@@ -2,6 +2,10 @@
 
 A personal trading journal to track trades, analyze performance, and identify patterns in your trading behavior.
 
+<img width="1890" height="772" alt="image" src="https://github.com/user-attachments/assets/e4ffa6bf-51ce-4896-893b-7691e4d016ca" />
+<br>
+<img width="1890" height="758" alt="image" src="https://github.com/user-attachments/assets/a701aa4a-39ed-4594-bbd3-b8f76ac94ca4" />
+
 ## Stack
 
 - **Next.js 16** - App Router, server actions
